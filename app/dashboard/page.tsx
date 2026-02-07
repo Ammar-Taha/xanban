@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 /**
- * Main app view: board layout with sidebar, header, and empty state.
- * New users are redirected to onboarding first; returning users see the board.
+ * Dashboard: board layout with sidebar, header, and empty state.
+ * New users are redirected to /onboarding first; returning users see the board.
  */
-export default function AppPage() {
+export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -17,7 +17,7 @@ export default function AppPage() {
     if (isLoading || !user) return;
     const completed = user.user_metadata?.onboarding_completed === true;
     if (!completed) {
-      router.replace("/app/onboarding");
+      router.replace("/onboarding");
     }
   }, [user, isLoading, router]);
 
@@ -33,9 +33,5 @@ export default function AppPage() {
     return null;
   }
 
-  return (
-    <BoardLayout
-      boardCount={0}
-    />
-  );
+  return <BoardLayout boardCount={0} />;
 }

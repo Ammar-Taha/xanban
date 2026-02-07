@@ -9,11 +9,20 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string
+  ) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
   signInWithOtp: (email: string) => Promise<{ error: AuthError | null }>;
-  verifyOtp: (email: string, token: string) => Promise<{ error: AuthError | null }>;
+  verifyOtp: (
+    email: string,
+    token: string
+  ) => Promise<{ error: AuthError | null }>;
   resendOtp: (email: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
@@ -62,9 +71,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (!error) {
-      router.push("/app");
+      router.push("/dashboard");
       router.refresh();
     }
     return { error };
@@ -108,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       type: "email",
     });
     if (!error) {
-      router.push("/app");
+      router.push("/dashboard");
       router.refresh();
     }
     return { error };
@@ -140,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updatePassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (!error) {
-      router.push("/app");
+      router.push("/dashboard");
       router.refresh();
     }
     return { error };
@@ -161,9 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updatePassword,
   };
 
-  return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

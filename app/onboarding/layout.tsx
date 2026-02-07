@@ -1,6 +1,6 @@
 import { ProtectedRoute } from "@/app/protected-route";
 
-export default function AppLayout({
+export default function OnboardingLayout({
   children,
 }: {
   children: React.ReactNode;

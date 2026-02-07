@@ -14,7 +14,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (authLoading || !user) return;
     if (user.user_metadata?.onboarding_completed === true) {
-      router.replace("/app");
+      router.replace("/dashboard");
     }
   }, [user, authLoading, router]);
 
@@ -26,7 +26,7 @@ export default function OnboardingPage() {
       data: { onboarding_completed: true },
     });
     setIsLoading(false);
-    router.push("/app");
+    router.push("/dashboard");
     router.refresh();
   };
 
@@ -38,7 +38,10 @@ export default function OnboardingPage() {
     completeOnboarding();
   };
 
-  if (authLoading || (user && user.user_metadata?.onboarding_completed === true)) {
+  if (
+    authLoading ||
+    (user && user.user_metadata?.onboarding_completed === true)
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--board-bg)]">
         <div className="h-12 w-12 animate-spin rounded-full border-2 border-[#635FC7] border-t-transparent" />

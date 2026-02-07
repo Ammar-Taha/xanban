@@ -21,7 +21,7 @@ function OtpLoginContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (user) router.push("/app");
+    if (user) router.push("/dashboard");
   }, [user, router]);
 
   const maskEmail = (e: string) => {
@@ -167,7 +167,9 @@ function OtpLoginContent() {
                 maxLength={6}
                 placeholder="000000"
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onChange={(e) =>
+                  setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                }
                 required
                 disabled={isLoading}
                 className="h-12 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-center text-[18px] font-bold tracking-[0.5em] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7] disabled:opacity-60"
@@ -197,7 +199,10 @@ function OtpLoginContent() {
 
       <p className="mt-8 border-t border-[#E4EBFA] pt-6 text-center text-[13px] font-medium text-[#828FA3]">
         No account?{" "}
-        <Link href="/signup" className="font-bold text-[#635FC7] hover:underline">
+        <Link
+          href="/signup"
+          className="font-bold text-[#635FC7] hover:underline"
+        >
           Sign up
         </Link>
       </p>
