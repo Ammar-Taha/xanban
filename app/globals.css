@@ -130,4 +130,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  button,
+  a {
+    @apply cursor-pointer;
+  }
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 /** Mini Kanban: 3 columns with card blocks */
 function BoardsIllustration() {
@@ -91,8 +92,9 @@ export default function LandingPage() {
         <div className="mx-auto flex h-14 max-w-[720px] items-center justify-between px-6 sm:h-16">
           <Link
             href="/"
-            className="text-lg font-bold tracking-tight text-[#000112] sm:text-xl"
+            className="flex items-center gap-2 text-lg font-bold tracking-tight text-[#000112] sm:text-xl"
           >
+            <Image src="/icon.svg" alt="" width={24} height={25} />
             Xanban
           </Link>
           <nav className="flex items-center gap-3 sm:gap-4">
