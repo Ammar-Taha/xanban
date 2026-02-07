@@ -13,11 +13,10 @@ export function ShowSidebarButton() {
     <button
       type="button"
       onClick={() => setSidebarOpen(true)}
-      className="fixed bottom-8 left-0 z-30 hidden items-center gap-3 rounded-r-[100px] bg-[var(--color-xanban-primary)] py-4 pl-6 pr-8 text-[15px] font-bold leading-[1.26] text-white transition-colors hover:bg-[var(--color-xanban-primary-hover)] md:flex"
+      className="fixed bottom-8 left-0 z-30 hidden items-center justify-center rounded-r-[100px] bg-[var(--color-xanban-primary)] py-4 pl-4 pr-5 transition-colors hover:bg-[var(--color-xanban-primary-hover)] md:flex"
       aria-label="Show sidebar"
     >
-      <PanelLeft className="h-5 w-5" />
-      Show Sidebar
+      <PanelLeft className="h-5 w-5 text-white" />
     </button>
   );
 }

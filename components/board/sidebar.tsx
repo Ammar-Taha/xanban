@@ -49,11 +49,11 @@ export function Sidebar({
             All boards ({boardCount})
           </p>
 
-          {/* Board list: only "+ Create New Board" for empty state */}
-          <div className="mt-4 flex flex-col gap-1 px-6">
+          {/* Board list: only "+ Create New Board" for empty state — button extends to left edge, content aligned with ALL BOARDS */}
+          <div className="mt-4 flex flex-col gap-1 pr-8">
             <button
               type="button"
-              className="flex items-center gap-3 rounded-r-[100px] px-6 py-3.5 text-left text-[15px] font-bold leading-[1.26] text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
+              className="flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
               onClick={() => {}}
             >
               <LayoutDashboard className="h-4 w-4 shrink-0" />
@@ -90,15 +90,17 @@ export function Sidebar({
             <Moon className="h-5 w-5 shrink-0 text-[var(--board-text-muted)]" />
           </div>
 
-          {/* Hide Sidebar */}
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(false)}
-            className="mb-8 flex items-center gap-3 rounded-r-[100px] px-8 py-3.5 text-[15px] font-bold leading-[1.26] text-[var(--board-text-muted)] transition-colors hover:bg-[var(--board-bg)]"
-          >
-            <EyeOff className="h-4 w-4 shrink-0" />
-            Hide Sidebar
-          </button>
+          {/* Hide Sidebar — left edge flush with sidebar (like Create New Board), right edge aligned with toggle */}
+          <div className="mb-8 mr-6">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="flex w-full items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-[15px] font-bold leading-[1.26] text-[var(--board-text-muted)] transition-colors hover:bg-[var(--board-bg)]"
+            >
+              <EyeOff className="h-4 w-4 shrink-0" />
+              Hide Sidebar
+            </button>
+          </div>
         </div>
       </aside>
     </>

@@ -23,11 +23,11 @@ export function BoardLayout({
       <Sidebar boardCount={boardCount} />
       <ShowSidebarButton />
 
-      {/* Main: header + content */}
+      {/* Main: header + content — starts after sidebar on desktop */}
       <main
         className={cn(
           "flex min-h-screen flex-1 flex-col transition-[margin] duration-200",
-          sidebarOpen ? "md:ml-0" : "md:ml-0"
+          sidebarOpen ? "md:ml-[300px]" : "md:ml-0"
         )}
       >
         <BoardHeader boardName={boardName} />
