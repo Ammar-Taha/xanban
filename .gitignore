@@ -53,3 +53,4 @@ Thumbs.db
 # markdown (keep README only)
 *.md
 !README.md
+!DESIGN-SYSTEM.md
