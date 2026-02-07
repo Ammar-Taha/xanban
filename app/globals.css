@@ -123,6 +123,24 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Board layout: light/dark backgrounds matching Figma */
+:root {
+  --board-bg: #f4f7fd;
+  --board-sidebar-bg: #ffffff;
+  --board-header-bg: #ffffff;
+  --board-line: #e4ebfa;
+  --board-text: #000112;
+  --board-text-muted: #828fa3;
+}
+.dark {
+  --board-bg: #20212c;
+  --board-sidebar-bg: #2b2c37;
+  --board-header-bg: #2b2c37;
+  --board-line: #3e3f4e;
+  --board-text: #ffffff;
+  --board-text-muted: #828fa3;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
