@@ -119,7 +119,7 @@ export function Sidebar({
                 <span
                   className={cn(
                     "absolute top-1 h-3 w-3 rounded-full bg-white transition-[left] duration-200",
-                    theme === "dark" ? "left-7" : "left-1"
+                    theme === "dark" ? "left-8" : "left-1"
                   )}
                 />
               </button>
@@ -142,7 +142,7 @@ export function Sidebar({
                 <span
                   className={cn(
                     "absolute top-0.5 h-3 w-3 rounded-full bg-white transition-[left] duration-200",
-                    theme === "dark" ? "left-5" : "left-0.5"
+                    theme === "dark" ? "left-5" : "left-0"
                   )}
                 />
               </button>
