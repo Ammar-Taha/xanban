@@ -11,7 +11,7 @@ type Step = "email" | "verify";
 function OtpLoginContent() {
   const searchParams = useSearchParams();
   const initialEmail = searchParams.get("email") ?? "";
-  const { signInWithOtp, verifyOtp, user } = useAuth();
+  const { signInWithOtp, verifyOtp, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(initialEmail ? "verify" : "email");
@@ -21,8 +21,8 @@ function OtpLoginContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (user) router.push("/dashboard");
-  }, [user, router]);
+    if (!authLoading && user) router.push("/dashboard");
+  }, [user, authLoading, router]);
 
   const maskEmail = (e: string) => {
     const [user, domain] = e.split("@");

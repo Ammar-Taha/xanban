@@ -10,6 +10,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [displayName, setDisplayName] = useState("");
 
   useEffect(() => {
     if (authLoading || !user) return;
@@ -18,12 +19,23 @@ export default function OnboardingPage() {
     }
   }, [user, authLoading, router]);
 
+  useEffect(() => {
+    if (user?.user_metadata?.display_name) {
+      setDisplayName(String(user.user_metadata.display_name));
+    } else if (user?.email) {
+      setDisplayName(user.email.split("@")[0] ?? "");
+    }
+  }, [user]);
+
   const completeOnboarding = async () => {
     if (!user) return;
     setIsLoading(true);
     const supabase = createClient();
     await supabase.auth.updateUser({
-      data: { onboarding_completed: true },
+      data: {
+        display_name: displayName.trim() || user.email?.split("@")[0] || "User",
+        onboarding_completed: true,
+      },
     });
     setIsLoading(false);
     router.push("/dashboard");
@@ -66,6 +78,23 @@ export default function OnboardingPage() {
           <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
             Get started by creating a workspace or joining one with an invite.
           </p>
+        </div>
+
+        <div className="mt-6 space-y-2">
+          <label
+            htmlFor="onboarding-display-name"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
+          >
+            Display name
+          </label>
+          <input
+            id="onboarding-display-name"
+            type="text"
+            placeholder="How we'll show you in the app"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+          />
         </div>
 
         <div className="mt-8 flex flex-col gap-3">

@@ -105,12 +105,14 @@ export function Sidebar({
           {/* Spacer */}
           <div className="min-h-[1rem] flex-1" />
 
-          {/* User menu: email + sign out on hover */}
+          {/* User menu: email + sign out on hover; padding extends hover zone so panel stays open */}
           {user && (
             <div
               className={cn(
                 "relative",
-                sidebarOpen ? "mx-6 mb-3" : "mb-3 flex justify-center"
+                sidebarOpen ? "mx-6 mb-3" : "mb-3 flex justify-center",
+                userMenuOpen &&
+                (sidebarOpen ? "pt-[100px] -mt-[100px]" : "pr-[220px] -mr-[220px]")
               )}
               onMouseEnter={() => setUserMenuOpen(true)}
               onMouseLeave={() => setUserMenuOpen(false)}
@@ -130,7 +132,9 @@ export function Sidebar({
                 <User className="h-5 w-5 shrink-0" />
                 {sidebarOpen && (
                   <span className="truncate text-[13px] font-medium">
-                    {user.email ?? "Account"}
+                    {user.user_metadata?.display_name ||
+                      user.email?.split("@")[0] ||
+                      "Account"}
                   </span>
                 )}
               </button>

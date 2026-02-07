@@ -15,7 +15,8 @@ interface AuthContextType {
   ) => Promise<{ error: AuthError | null }>;
   signUp: (
     email: string,
-    password: string
+    password: string,
+    options?: { display_name?: string }
   ) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
   signInWithOtp: (email: string) => Promise<{ error: AuthError | null }>;
@@ -53,21 +54,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session ?? null);
-      setUser(session?.user ?? null);
+    let cancelled = false;
+
+    async function initAuth() {
+      // Validate session with server (getUser). getSession() alone reads from
+      // storage and can leave deleted/invalid users appearing logged in.
+      const {
+        data: { user: serverUser },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (cancelled) return;
+
+      if (error || !serverUser) {
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+      } else {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session ?? null);
+        setUser(serverUser);
+      }
       setIsLoading(false);
-    });
+    }
+
+    initAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
       setSession(session ?? null);
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const signIn = async (email: string, password: string) => {
@@ -82,12 +107,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    opts?: { display_name?: string }
+  ) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: getAuthCallbackUrl(),
+        data: opts?.display_name
+          ? { display_name: opts.display_name.trim() }
+          : undefined,
       },
     });
     return { error };

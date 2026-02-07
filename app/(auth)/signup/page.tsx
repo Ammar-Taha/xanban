@@ -8,17 +8,18 @@ import { useAuth } from "@/components/providers/auth-provider";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, signInWithGoogle, user } = useAuth();
+  const { signUp, signInWithGoogle, user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/dashboard");
-  }, [user, router]);
+    if (!authLoading && user) router.push("/dashboard");
+  }, [user, authLoading, router]);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +31,9 @@ export default function SignupPage() {
       setIsLoading(false);
       return;
     }
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, {
+      display_name: displayName.trim() || undefined,
+    });
     if (error) setError(error.message);
     else setSuccess(true);
     setIsLoading(false);
@@ -72,6 +75,23 @@ export default function SignupPage() {
       )}
 
       <form onSubmit={handleEmailSignUp} className="mt-6 space-y-4">
+        <div className="space-y-2">
+          <label
+            htmlFor="displayName"
+            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+          >
+            Display name
+          </label>
+          <input
+            id="displayName"
+            type="text"
+            placeholder="How we'll show you in the app"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+          />
+        </div>
+
         <div className="space-y-2">
           <label
             htmlFor="email"
