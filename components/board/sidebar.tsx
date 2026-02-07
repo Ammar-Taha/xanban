@@ -142,23 +142,38 @@ export function Sidebar({
               {userExpanded && (
                 <div
                   className={cn(
-                    "z-50 mb-1 rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] p-3 shadow-sm",
-                    sidebarOpen ? "w-full" : "w-[200px]"
+                    "z-50 mb-1 rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] shadow-sm",
+                    sidebarOpen ? "w-full p-3" : "p-1.5"
                   )}
                   role="menu"
                 >
-                  <p className="truncate px-1 py-1 text-[12px] font-medium text-[var(--board-text-muted)]">
-                    {user.email}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => signOut()}
-                    className="mt-2 flex w-full items-center gap-2 rounded-md px-2 py-2 text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
-                    role="menuitem"
-                  >
-                    <LogOut className="h-4 w-4 shrink-0" />
-                    Sign out
-                  </button>
+                  {sidebarOpen ? (
+                    <>
+                      <p className="truncate px-1 py-1 text-[12px] font-medium text-[var(--board-text-muted)]">
+                        {user.email}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => signOut()}
+                        className="mt-2 flex w-full items-center gap-2 rounded-md px-2 py-2 text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                        role="menuitem"
+                      >
+                        <LogOut className="h-4 w-4 shrink-0" />
+                        Sign out
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => signOut()}
+                      className="flex h-9 w-9 items-center justify-center rounded-md text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                      role="menuitem"
+                      title="Sign out"
+                      aria-label="Sign out"
+                    >
+                      <LogOut className="h-4 w-4 shrink-0" />
+                    </button>
+                  )}
                 </div>
               )}
 
