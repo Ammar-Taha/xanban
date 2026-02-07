@@ -11,6 +11,9 @@ const plusJakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Xanban — Task management that stays out of your way",
   description: "Boards, columns, and cards. Simple Kanban for getting things done.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
