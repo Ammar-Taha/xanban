@@ -21,7 +21,7 @@ export function Sidebar({
   const { theme, toggleTheme } = useTheme();
   const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen } = useBoardUIStore();
   const { user, signOut } = useAuth();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userExpanded, setUserExpanded] = useState(false);
 
   return (
     <>
@@ -105,46 +105,20 @@ export function Sidebar({
           {/* Spacer */}
           <div className="min-h-[1rem] flex-1" />
 
-          {/* User menu: email + sign out on hover; padding extends hover zone so panel stays open */}
+          {/* User block: collapsible; collapsed = icon + display name; expanded = header + email + sign out above */}
           {user && (
             <div
               className={cn(
-                "relative",
-                sidebarOpen ? "mx-6 mb-3" : "mb-3 flex justify-center",
-                userMenuOpen &&
-                (sidebarOpen ? "pt-[100px] -mt-[100px]" : "pr-[220px] -mr-[220px]")
+                "flex flex-col",
+                sidebarOpen ? "mx-6 mb-3" : "mb-3 items-center"
               )}
-              onMouseEnter={() => setUserMenuOpen(true)}
-              onMouseLeave={() => setUserMenuOpen(false)}
             >
-              <button
-                type="button"
-                className={cn(
-                  "flex items-center gap-3 rounded-lg text-[var(--board-text-muted)] transition-colors hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]",
-                  sidebarOpen
-                    ? "w-full px-3 py-2.5 text-left"
-                    : "h-10 w-10 justify-center"
-                )}
-                aria-expanded={userMenuOpen}
-                aria-haspopup="true"
-                aria-label="Account menu"
-              >
-                <User className="h-5 w-5 shrink-0" />
-                {sidebarOpen && (
-                  <span className="truncate text-[13px] font-medium">
-                    {user.user_metadata?.display_name ||
-                      user.email?.split("@")[0] ||
-                      "Account"}
-                  </span>
-                )}
-              </button>
-              {userMenuOpen && (
+              {/* Expanded content: appears above the header, grows upward */}
+              {userExpanded && (
                 <div
                   className={cn(
-                    "absolute z-50 min-w-[200px] rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] p-3 shadow-lg",
-                    sidebarOpen
-                      ? "bottom-full left-0 right-0 mb-1"
-                      : "bottom-0 left-full ml-2"
+                    "z-50 mb-1 rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] p-3 shadow-sm",
+                    sidebarOpen ? "w-full" : "w-[200px]"
                   )}
                   role="menu"
                 >
@@ -162,6 +136,29 @@ export function Sidebar({
                   </button>
                 </div>
               )}
+
+              {/* Persistent header: icon + display name; click toggles expansion */}
+              <button
+                type="button"
+                onClick={() => setUserExpanded((v) => !v)}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg text-[var(--board-text-muted)] transition-colors hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]",
+                  sidebarOpen
+                    ? "w-full px-3 py-2.5 text-left"
+                    : "h-10 w-10 justify-center"
+                )}
+                aria-expanded={userExpanded}
+                aria-label={userExpanded ? "Collapse account" : "Expand account"}
+              >
+                <User className="h-5 w-5 shrink-0" />
+                {sidebarOpen && (
+                  <span className="truncate text-[13px] font-medium">
+                    {user.user_metadata?.display_name ||
+                      user.email?.split("@")[0] ||
+                      "Account"}
+                  </span>
+                )}
+              </button>
             </div>
           )}
 
