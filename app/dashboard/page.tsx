@@ -1,5 +1,6 @@
 "use client";
 
+import { BoardColumnsView } from "@/components/board/board-columns-view";
 import { BoardLayout } from "@/components/board/board-layout";
 import { useAuth } from "@/components/providers/auth-provider";
 import type { BoardSummary } from "@/lib/board-ui-store";
@@ -101,6 +102,10 @@ export default function DashboardPage() {
       selectedBoardColumnCount={columnCount}
       onBoardCreated={handleBoardCreated}
       onSelectBoard={setSelectedBoardId}
-    />
+    >
+      {selectedBoardId && columnCount > 0 ? (
+        <BoardColumnsView boardId={selectedBoardId} />
+      ) : undefined}
+    </BoardLayout>
   );
 }
