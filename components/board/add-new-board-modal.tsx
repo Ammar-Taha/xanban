@@ -76,28 +76,35 @@ export function AddNewBoardModal({
       const supabase = createClient();
 
       try {
-        const { data: board, error: boardError } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client generic inference fails with our Database type
+        const { data: boardData, error: boardError } = (await supabase
           .from("boards")
-          .insert({ user_id: user.id, name })
+          .insert({ user_id: user.id, name } as any)
           .select("id")
-          .single();
+          .single()) as {
+          data: { id: string } | null;
+          error: { message: string } | null;
+        };
 
         if (boardError) {
           setError(boardError.message || "Failed to create board.");
           return;
         }
-        if (!board?.id) {
+        const boardId = boardData?.id;
+        if (!boardId) {
           setError("Failed to create board.");
           return;
         }
 
-        const { error: colsError } = await supabase.from("columns").insert(
-          columnNames.map((colName, position) => ({
-            board_id: board.id,
-            name: colName,
-            position,
-          }))
-        );
+        const columnRows = columnNames.map((colName, position) => ({
+          board_id: boardId,
+          name: colName,
+          position,
+        }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client generic inference fails with our Database type
+        const { error: colsError } = (await supabase
+          .from("columns")
+          .insert(columnRows as any)) as { error: { message: string } | null };
 
         if (colsError) {
           setError(colsError.message || "Failed to create columns.");
@@ -106,7 +113,7 @@ export function AddNewBoardModal({
 
         resetForm();
         onClose();
-        onBoardCreated?.(board.id);
+        onBoardCreated?.(boardId);
       } finally {
         setIsSubmitting(false);
       }
