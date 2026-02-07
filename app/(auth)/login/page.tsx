@@ -16,7 +16,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.push("/");
+    if (user) router.push("/app");
   }, [user, router]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {

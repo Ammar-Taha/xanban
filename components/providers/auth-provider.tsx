@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (!error) {
-      router.push("/");
+      router.push("/app");
       router.refresh();
     }
     return { error };
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       type: "email",
     });
     if (!error) {
-      router.push("/");
+      router.push("/app");
       router.refresh();
     }
     return { error };
@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updatePassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (!error) {
-      router.push("/");
+      router.push("/app");
       router.refresh();
     }
     return { error };

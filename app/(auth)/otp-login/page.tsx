@@ -21,7 +21,7 @@ function OtpLoginContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (user) router.push("/");
+    if (user) router.push("/app");
   }, [user, router]);
 
   const maskEmail = (e: string) => {
