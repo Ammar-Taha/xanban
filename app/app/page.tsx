@@ -35,7 +35,6 @@ export default function AppPage() {
 
   return (
     <BoardLayout
-      boardName="Platform Launch"
       boardCount={0}
     />
   );

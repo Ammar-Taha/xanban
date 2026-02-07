@@ -5,17 +5,21 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, LayoutDashboard, MoreVertical, Plus } from "lucide-react";
 import { useState } from "react";
 
+const PLACEHOLDER_BOARD_NAME = "Untitled board";
+
 export function BoardHeader({
-  boardName = "Platform Launch",
+  boardName,
   onAddTask,
   onOpenSettings,
 }: {
-  boardName?: string;
+  boardName?: string | null;
   onAddTask?: () => void;
   onOpenSettings?: () => void;
 }) {
   const { sidebarOpen, setSidebarOpen } = useBoardUIStore();
   const [menuOpen, setMenuOpen] = useState(false);
+  const displayName = boardName?.trim() || PLACEHOLDER_BOARD_NAME;
+  const isPlaceholder = !boardName?.trim();
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 md:h-[97px] md:px-6">
@@ -32,10 +36,16 @@ export function BoardHeader({
         >
           <LayoutDashboard className="h-5 w-5" />
         </button>
-        {/* Mobile: board name with chevron (dropdown for board switch) */}
+        {/* Board name with chevron (dropdown for board switch on mobile) */}
         <div className="flex min-w-0 items-center gap-2">
-          <h1 className="truncate text-[18px] font-bold leading-[1.26] text-[var(--board-text)] md:text-[24px]">
-            {boardName}
+          <h1
+            className={cn(
+              "truncate text-[18px] font-bold leading-[1.26] md:text-[24px]",
+              isPlaceholder ? "text-[var(--board-text-muted)]" : "text-[var(--board-text)]"
+            )}
+            title={isPlaceholder ? "Create or select a board to name it" : undefined}
+          >
+            {displayName}
           </h1>
           <button
             type="button"

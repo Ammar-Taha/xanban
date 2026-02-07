@@ -17,7 +17,7 @@ export function Sidebar({
   className?: string;
 }) {
   const { theme, toggleTheme } = useTheme();
-  const { sidebarOpen, setSidebarOpen } = useBoardUIStore();
+  const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen } = useBoardUIStore();
 
   return (
     <>
@@ -69,7 +69,7 @@ export function Sidebar({
                 <button
                   type="button"
                   className="flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
-                  onClick={() => {}}
+                  onClick={() => setAddBoardModalOpen(true)}
                 >
                   <LayoutDashboard className="h-4 w-4 shrink-0" />
                   + Create New Board
@@ -91,7 +91,7 @@ export function Sidebar({
                 className="flex h-10 w-10 items-center justify-center rounded-lg text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
                 title="Create new board"
                 aria-label="Create new board"
-                onClick={() => {}}
+                onClick={() => setAddBoardModalOpen(true)}
               >
                 <Plus className="h-5 w-5 shrink-0" />
               </button>
