@@ -4,7 +4,6 @@ import type { BoardSummary } from "@/lib/board-ui-store";
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
 import { AddNewBoardModal } from "./add-new-board-modal";
-import { BoardEmptyState } from "./board-empty-state";
 import { BoardHeader } from "./board-header";
 import { DashboardEmptyState } from "./dashboard-empty-state";
 import { Sidebar } from "./sidebar";
@@ -15,7 +14,6 @@ export function BoardLayout({
   boards = [],
   selectedBoardId = null,
   selectedBoardName,
-  selectedBoardColumnCount = 0,
   onBoardCreated,
   onSelectBoard,
 }: {
@@ -23,7 +21,6 @@ export function BoardLayout({
   boards?: BoardSummary[];
   selectedBoardId?: string | null;
   selectedBoardName?: string | null;
-  selectedBoardColumnCount?: number;
   onBoardCreated?: (boardId: string) => void;
   onSelectBoard?: (id: string) => void;
 }) {
@@ -31,18 +28,11 @@ export function BoardLayout({
     useBoardUIStore();
 
   const hasBoards = boards.length > 0;
-  const hasColumns = selectedBoardColumnCount > 0;
 
   const mainContent = !hasBoards ? (
     <DashboardEmptyState onCreateBoard={() => setAddBoardModalOpen(true)} />
-  ) : !hasColumns ? (
-    <BoardEmptyState onAddColumn={() => {}} />
-  ) : children != null ? (
-    children
   ) : (
-    <div className="flex flex-1 items-center justify-center px-4 text-[var(--board-text-muted)]">
-      Board columns view (coming soon)
-    </div>
+    children ?? null
   );
 
   return (

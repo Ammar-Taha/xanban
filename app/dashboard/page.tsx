@@ -18,7 +18,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const { selectedBoardId, setSelectedBoardId } = useBoardUIStore();
   const [boards, setBoards] = useState<BoardSummary[]>([]);
-  const [columnCount, setColumnCount] = useState(0);
 
   useEffect(() => {
     if (isLoading || !user) return;
@@ -53,30 +52,12 @@ export default function DashboardPage() {
     if (!exists) setSelectedBoardId(boards[0].id);
   }, [boards, selectedBoardId, setSelectedBoardId]);
 
-  const fetchColumnCount = useCallback(async (boardId: string | null) => {
-    if (!boardId) {
-      setColumnCount(0);
-      return;
-    }
-    const supabase = createClient();
-    const { count } = await supabase
-      .from("columns")
-      .select("id", { count: "exact", head: true })
-      .eq("board_id", boardId);
-    setColumnCount(count ?? 0);
-  }, []);
-
-  useEffect(() => {
-    fetchColumnCount(selectedBoardId);
-  }, [selectedBoardId, fetchColumnCount]);
-
   const handleBoardCreated = useCallback(
     (boardId: string) => {
       setSelectedBoardId(boardId);
       fetchBoards();
-      fetchColumnCount(boardId);
     },
-    [setSelectedBoardId, fetchBoards, fetchColumnCount]
+    [setSelectedBoardId, fetchBoards]
   );
 
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
@@ -99,11 +80,10 @@ export default function DashboardPage() {
       boards={boards}
       selectedBoardId={selectedBoardId}
       selectedBoardName={selectedBoardName}
-      selectedBoardColumnCount={columnCount}
       onBoardCreated={handleBoardCreated}
       onSelectBoard={setSelectedBoardId}
     >
-      {selectedBoardId && columnCount > 0 ? (
+      {selectedBoardId ? (
         <BoardColumnsView boardId={selectedBoardId} />
       ) : undefined}
     </BoardLayout>
