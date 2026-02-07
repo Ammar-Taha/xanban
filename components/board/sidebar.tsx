@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useBoardUIStore } from "@/lib/board-ui-store";
-import { EyeOff, LayoutDashboard, Moon, Plus, Sun } from "lucide-react";
+import { EyeOff, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
@@ -18,6 +20,8 @@ export function Sidebar({
 }) {
   const { theme, toggleTheme } = useTheme();
   const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen } = useBoardUIStore();
+  const { user, signOut } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   return (
     <>
@@ -101,6 +105,62 @@ export function Sidebar({
           {/* Spacer */}
           <div className="min-h-[1rem] flex-1" />
 
+          {/* User menu: email + sign out on hover */}
+          {user && (
+            <div
+              className={cn(
+                "relative",
+                sidebarOpen ? "mx-6 mb-3" : "mb-3 flex justify-center"
+              )}
+              onMouseEnter={() => setUserMenuOpen(true)}
+              onMouseLeave={() => setUserMenuOpen(false)}
+            >
+              <button
+                type="button"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg text-[var(--board-text-muted)] transition-colors hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]",
+                  sidebarOpen
+                    ? "w-full px-3 py-2.5 text-left"
+                    : "h-10 w-10 justify-center"
+                )}
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
+                aria-label="Account menu"
+              >
+                <User className="h-5 w-5 shrink-0" />
+                {sidebarOpen && (
+                  <span className="truncate text-[13px] font-medium">
+                    {user.email ?? "Account"}
+                  </span>
+                )}
+              </button>
+              {userMenuOpen && (
+                <div
+                  className={cn(
+                    "absolute z-50 min-w-[200px] rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] p-3 shadow-lg",
+                    sidebarOpen
+                      ? "bottom-full left-0 right-0 mb-1"
+                      : "bottom-0 left-full ml-2"
+                  )}
+                  role="menu"
+                >
+                  <p className="truncate px-1 py-1 text-[12px] font-medium text-[var(--board-text-muted)]">
+                    {user.email}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => signOut()}
+                    className="mt-2 flex w-full items-center gap-2 rounded-md px-2 py-2 text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                    role="menuitem"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Theme toggle: full when open, compact when collapsed */}
           {sidebarOpen ? (
             <div className="mx-6 mb-4 flex items-center justify-center gap-4 rounded-lg bg-[var(--board-bg)] py-3">
@@ -142,7 +202,7 @@ export function Sidebar({
                 <span
                   className={cn(
                     "absolute top-0.5 h-3 w-3 rounded-full bg-white transition-[left] duration-200",
-                    theme === "dark" ? "left-5" : "left-0"
+                    theme === "dark" ? "left-4" : "left-1"
                   )}
                 />
               </button>
