@@ -54,7 +54,7 @@ export function BoardLayout({
       <main
         className={cn(
           "flex min-h-screen flex-1 flex-col transition-[margin] duration-200",
-          sidebarOpen ? "md:ml-[300px]" : "md:ml-[72px]"
+          sidebarOpen ? "md:ml-[300px]" : "md:ml-[112px]"
         )}
       >
         <BoardHeader boardName={selectedBoardName} />
