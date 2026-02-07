@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useBoardUIStore } from "@/lib/board-ui-store";
+import type { BoardSummary } from "@/lib/board-ui-store";
 import { EyeOff, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -12,14 +13,19 @@ const SIDEBAR_WIDTH = 300;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
 
 export function Sidebar({
-  boardCount = 0,
+  boards = [],
+  selectedBoardId = null,
+  onSelectBoard,
   className,
 }: {
-  boardCount?: number;
+  boards?: BoardSummary[];
+  selectedBoardId?: string | null;
+  onSelectBoard?: (id: string) => void;
   className?: string;
 }) {
   const { theme, toggleTheme } = useTheme();
   const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen } = useBoardUIStore();
+  const boardCount = boards.length;
   const { user, signOut } = useAuth();
   const [userExpanded, setUserExpanded] = useState(false);
 
@@ -63,13 +69,32 @@ export function Sidebar({
             </span>
           </div>
 
-          {/* Boards section: full when open, compact when collapsed */}
+          {/* Boards section: list of boards then Create New Board at the end */}
           {sidebarOpen ? (
             <>
               <p className="mt-12 px-8 text-[12px] font-bold uppercase leading-[1.26] tracking-[0.2em] text-[var(--board-text-muted)]">
                 All boards ({boardCount})
               </p>
               <div className="mt-4 flex flex-col gap-1 pr-8">
+                {boards.map((board) => {
+                  const isSelected = board.id === selectedBoardId;
+                  return (
+                    <button
+                      key={board.id}
+                      type="button"
+                      onClick={() => onSelectBoard?.(board.id)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] transition-colors",
+                        isSelected
+                          ? "bg-[var(--color-xanban-primary)] text-white"
+                          : "text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
+                      )}
+                    >
+                      <LayoutDashboard className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{board.name}</span>
+                    </button>
+                  );
+                })}
                 <button
                   type="button"
                   className="flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
