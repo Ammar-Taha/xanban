@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { useCallback, useState } from "react";
 import { AddNewBoardModal } from "./add-new-board-modal";
+import { AddNewColumnModal } from "./add-new-column-modal";
 import { AddNewTaskModal } from "./add-new-task-modal";
 import { BoardHeader } from "./board-header";
 import { DashboardEmptyState } from "./dashboard-empty-state";
@@ -24,6 +25,7 @@ function BoardLayoutContent({
   onBoardCreated,
   onSelectBoard,
   onTaskCreated,
+  onColumnAdded,
 }: {
   children?: React.ReactNode;
   boards?: BoardSummary[];
@@ -32,6 +34,7 @@ function BoardLayoutContent({
   onBoardCreated?: (boardId: string) => void;
   onSelectBoard?: (id: string) => void;
   onTaskCreated?: () => void;
+  onColumnAdded?: () => void;
 }) {
   const {
     sidebarOpen,
@@ -39,6 +42,8 @@ function BoardLayoutContent({
     setAddBoardModalOpen,
     addTaskModalOpen,
     setAddTaskModalOpen,
+    addColumnModalOpen,
+    setAddColumnModalOpen,
   } = useBoardUIStore();
   const {
     viewCardId,
@@ -88,6 +93,13 @@ function BoardLayoutContent({
         onClose={() => setAddTaskModalOpen(false)}
         boardId={selectedBoardId}
         onTaskCreated={onTaskCreated}
+      />
+
+      <AddNewColumnModal
+        open={addColumnModalOpen}
+        onClose={() => setAddColumnModalOpen(false)}
+        boardId={selectedBoardId}
+        onColumnAdded={onColumnAdded}
       />
 
       <ViewTaskModal

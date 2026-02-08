@@ -11,6 +11,8 @@ type BoardUIState = {
   setAddBoardModalOpen: (open: boolean) => void;
   addTaskModalOpen: boolean;
   setAddTaskModalOpen: (open: boolean) => void;
+  addColumnModalOpen: boolean;
+  setAddColumnModalOpen: (open: boolean) => void;
   selectedBoardId: string | null;
   setSelectedBoardId: (id: string | null) => void;
 };
@@ -25,6 +27,8 @@ export const useBoardUIStore = create<BoardUIState>()(
       setAddBoardModalOpen: (open) => set({ addBoardModalOpen: open }),
       addTaskModalOpen: false,
       setAddTaskModalOpen: (open) => set({ addTaskModalOpen: open }),
+      addColumnModalOpen: false,
+      setAddColumnModalOpen: (open) => set({ addColumnModalOpen: open }),
       selectedBoardId: null,
       setSelectedBoardId: (id) => set({ selectedBoardId: id }),
     }),

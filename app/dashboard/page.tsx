@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const { selectedBoardId, setSelectedBoardId } = useBoardUIStore();
+  const { selectedBoardId, setSelectedBoardId, setAddColumnModalOpen } = useBoardUIStore();
   const [boards, setBoards] = useState<BoardSummary[]>([]);
   const [boardRefreshKey, setBoardRefreshKey] = useState(0);
 
@@ -88,9 +88,14 @@ export default function DashboardPage() {
       onBoardCreated={handleBoardCreated}
       onSelectBoard={setSelectedBoardId}
       onTaskCreated={handleTaskCreated}
+      onColumnAdded={handleTaskCreated}
     >
       {selectedBoardId ? (
-        <BoardColumnsView key={boardRefreshKey} boardId={selectedBoardId} />
+        <BoardColumnsView
+          key={boardRefreshKey}
+          boardId={selectedBoardId}
+          onAddColumn={() => setAddColumnModalOpen(true)}
+        />
       ) : undefined}
     </BoardLayout>
   );
