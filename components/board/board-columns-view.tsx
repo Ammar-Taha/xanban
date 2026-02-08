@@ -1,5 +1,6 @@
 "use client";
 
+import { useTaskModals } from "@/components/board/task-modals-context";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
@@ -33,6 +34,7 @@ export function BoardColumnsView({
   boardId: string;
   onAddColumn?: () => void;
 }) {
+  const { setViewCardId } = useTaskModals();
   const [columns, setColumns] = useState<Column[]>([]);
   const [cardsByColumn, setCardsByColumn] = useState<Record<string, Card[]>>({});
   const [subtasksByCard, setSubtasksByCard] = useState<Record<string, SubtaskCount>>({});
@@ -128,9 +130,11 @@ export function BoardColumnsView({
               {(cardsByColumn[col.id] ?? []).map((card) => {
                 const st = subtasksByCard[card.id];
                 return (
-                  <div
+                  <button
                     key={card.id}
-                    className="rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 shadow-sm"
+                    type="button"
+                    onClick={() => setViewCardId(card.id)}
+                    className="w-full rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 text-left shadow-sm transition-colors hover:border-[var(--color-xanban-primary)]/50 hover:shadow-md"
                   >
                     <p className="text-[15px] font-medium leading-[1.26] text-[var(--board-text)]">
                       {card.title}
@@ -140,7 +144,7 @@ export function BoardColumnsView({
                         {st.completed} of {st.total} substasks
                       </p>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>

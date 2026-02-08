@@ -2,15 +2,21 @@
 
 import type { BoardSummary } from "@/lib/board-ui-store";
 import { useBoardUIStore } from "@/lib/board-ui-store";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { useCallback, useState } from "react";
 import { AddNewBoardModal } from "./add-new-board-modal";
 import { AddNewTaskModal } from "./add-new-task-modal";
 import { BoardHeader } from "./board-header";
 import { DashboardEmptyState } from "./dashboard-empty-state";
+import { DeleteTaskModal } from "./delete-task-modal";
+import { EditTaskModal } from "./edit-task-modal";
 import { Sidebar } from "./sidebar";
 import { ShowSidebarButton } from "./show-sidebar-button";
+import { TaskModalsProvider, useTaskModals } from "./task-modals-context";
+import { ViewTaskModal } from "./view-task-modal";
 
-export function BoardLayout({
+function BoardLayoutContent({
   children,
   boards = [],
   selectedBoardId = null,
@@ -34,6 +40,15 @@ export function BoardLayout({
     addTaskModalOpen,
     setAddTaskModalOpen,
   } = useBoardUIStore();
+  const {
+    viewCardId,
+    setViewCardId,
+    editCardId,
+    setEditCardId,
+    deleteTask,
+    setDeleteTask,
+  } = useTaskModals();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const hasBoards = boards.length > 0;
 
@@ -42,6 +57,16 @@ export function BoardLayout({
   ) : (
     children ?? null
   );
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTask) return;
+    setIsDeleting(true);
+    const supabase = createClient();
+    await supabase.from("cards").delete().eq("id", deleteTask.cardId);
+    setDeleteTask(null);
+    setIsDeleting(false);
+    onTaskCreated?.();
+  }, [deleteTask, setDeleteTask, onTaskCreated]);
 
   return (
     <div className="flex min-h-screen bg-[var(--board-bg)]">
@@ -63,6 +88,41 @@ export function BoardLayout({
         onClose={() => setAddTaskModalOpen(false)}
         boardId={selectedBoardId}
         onTaskCreated={onTaskCreated}
+      />
+
+      <ViewTaskModal
+        open={!!viewCardId}
+        onClose={() => setViewCardId(null)}
+        cardId={viewCardId}
+        boardId={selectedBoardId}
+        onEdit={(id) => {
+          setViewCardId(null);
+          setEditCardId(id);
+        }}
+        onDelete={(id, title) => {
+          setViewCardId(null);
+          setDeleteTask({ cardId: id, title });
+        }}
+        onTaskChanged={onTaskCreated}
+      />
+
+      <EditTaskModal
+        open={!!editCardId}
+        onClose={() => setEditCardId(null)}
+        cardId={editCardId}
+        boardId={selectedBoardId}
+        onSaved={() => {
+          setEditCardId(null);
+          onTaskCreated?.();
+        }}
+      />
+
+      <DeleteTaskModal
+        open={!!deleteTask}
+        onClose={() => setDeleteTask(null)}
+        taskTitle={deleteTask?.title ?? ""}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
       />
 
       {/* Main: header + content — starts after sidebar on desktop */}
@@ -89,5 +149,13 @@ export function BoardLayout({
         />
       )}
     </div>
+  );
+}
+
+export function BoardLayout(props: Parameters<typeof BoardLayoutContent>[0]) {
+  return (
+    <TaskModalsProvider>
+      <BoardLayoutContent {...props} />
+    </TaskModalsProvider>
   );
 }
