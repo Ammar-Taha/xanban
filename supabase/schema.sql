@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS public.boards (
 
 CREATE INDEX IF NOT EXISTS idx_boards_user_id ON public.boards(user_id);
 CREATE INDEX IF NOT EXISTS idx_boards_updated_at ON public.boards(updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_boards_user_position ON public.boards(user_id, position);
 
 -- Add position column for existing databases
 DO $$
@@ -38,6 +37,9 @@ BEGIN
     UPDATE public.boards b SET position = ordered.rn FROM ordered WHERE b.id = ordered.id;
   END IF;
 END $$;
+
+-- Create position index after legacy databases are migrated
+CREATE INDEX IF NOT EXISTS idx_boards_user_position ON public.boards(user_id, position);
 
 DO $$
 BEGIN
