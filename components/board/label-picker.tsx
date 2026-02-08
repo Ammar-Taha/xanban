@@ -4,7 +4,8 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Label } from "@/lib/labels";
-import { LABEL_COLORS } from "@/lib/labels";
+import { DEFAULT_LABEL_COLOR } from "@/lib/labels";
+import { ColumnColorPicker } from "@/components/board/column-color-picker";
 import { LabelChip } from "@/components/board/label-chip";
 import { ChevronDown, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -27,7 +28,7 @@ export function LabelPicker({
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newColor, setNewColor] = useState<string>(LABEL_COLORS[0]);
+  const [newColor, setNewColor] = useState<string>(DEFAULT_LABEL_COLOR);
 
   const fetchLabels = useCallback(async () => {
     if (!user?.id) return;
@@ -67,7 +68,7 @@ export function LabelPicker({
       .single()) as { data: { id: string } | null; error: { message: string } | null };
     if (error) return;
     setNewName("");
-    setNewColor(LABEL_COLORS[0]);
+    setNewColor(DEFAULT_LABEL_COLOR);
     setCreating(false);
     await fetchLabels();
     if (row?.id) onChange([...selectedIds, row.id]);
@@ -157,23 +158,11 @@ export function LabelPicker({
                         onChange={(e) => setNewName(e.target.value)}
                         className="h-8 w-full rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-2 text-[13px] focus:border-[#635FC7] focus:outline-none"
                       />
-                      <div className="flex flex-wrap gap-1">
-                        {LABEL_COLORS.map((c) => (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() => setNewColor(c)}
-                            className={cn(
-                              "h-6 w-6 rounded-full border-2 transition-transform",
-                              newColor === c
-                                ? "border-[var(--board-text)] scale-110"
-                                : "border-transparent hover:scale-105"
-                            )}
-                            style={{ backgroundColor: c }}
-                            aria-label={`Color ${c}`}
-                          />
-                        ))}
-                      </div>
+                      <ColumnColorPicker
+                        value={newColor}
+                        onChange={setNewColor}
+                        showHex={false}
+                      />
                       <div className="flex gap-2">
                         <button
                           type="button"

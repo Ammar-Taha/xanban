@@ -2,6 +2,15 @@
 
 import { cn } from "@/lib/utils";
 
+/** Relative luminance for hex; use dark text when background is light. */
+function isLightHex(hex: string): boolean {
+  const m = hex.replace(/^#/, "").match(/^([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$/);
+  if (!m) return false;
+  const [r, g, b] = [m[1], m[2], m[3]].map((x) => parseInt(x, 16) / 255);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 0.6;
+}
+
 type LabelChipProps = {
   name: string;
   color: string | null;
@@ -11,13 +20,7 @@ type LabelChipProps = {
 
 export function LabelChip({ name, color, className, small }: LabelChipProps) {
   const bg = color ?? "var(--board-line)";
-  const isLight =
-    typeof bg === "string" &&
-    bg.startsWith("#") &&
-    (bg === "#F2C94C" ||
-      bg === "#67E2AE" ||
-      bg === "#49C4E5" ||
-      bg === "#FF9F1A");
+  const isLight = typeof bg === "string" && bg.startsWith("#") && isLightHex(bg);
   const textClass = isLight ? "text-[var(--color-xanban-black)]" : "text-white";
 
   return (

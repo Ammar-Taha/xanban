@@ -2,9 +2,9 @@
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
 import type { Label } from "@/lib/labels";
-import { LABEL_COLORS } from "@/lib/labels";
+import { DEFAULT_LABEL_COLOR } from "@/lib/labels";
+import { ColumnColorPicker } from "@/components/board/column-color-picker";
 import { LabelChip } from "@/components/board/label-chip";
 import { Plus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -20,7 +20,7 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newColor, setNewColor] = useState<string>(LABEL_COLORS[0]);
+  const [newColor, setNewColor] = useState<string>(DEFAULT_LABEL_COLOR);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
@@ -56,7 +56,7 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
       color: newColor,
     });
     setNewName("");
-    setNewColor(LABEL_COLORS[0]);
+    setNewColor(DEFAULT_LABEL_COLOR);
     setAdding(false);
     await fetchLabels();
   }, [newName, newColor, user?.id, fetchLabels]);
@@ -134,21 +134,10 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
                       className="h-8 flex-1 rounded border border-[var(--board-line)] bg-[var(--board-header-bg)] px-2 text-[13px] focus:border-[#635FC7] focus:outline-none"
                       placeholder="Label name"
                     />
-                    <div className="flex gap-1">
-                      {LABEL_COLORS.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => setEditColor(c)}
-                          className={cn(
-                            "h-6 w-6 rounded-full border-2",
-                            editColor === c ? "border-[var(--board-text)]" : "border-transparent"
-                          )}
-                          style={{ backgroundColor: c }}
-                          aria-label={`Color ${c}`}
-                        />
-                      ))}
-                    </div>
+                    <ColumnColorPicker
+                      value={editColor || DEFAULT_LABEL_COLOR}
+                      onChange={(hex) => setEditColor(hex || DEFAULT_LABEL_COLOR)}
+                    />
                     <button
                       type="button"
                       onClick={() => handleUpdate(l.id)}
@@ -173,7 +162,7 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
                       onClick={() => {
                         setEditingId(l.id);
                         setEditName(l.name);
-                        setEditColor(l.color ?? LABEL_COLORS[0]);
+                        setEditColor(l.color ?? DEFAULT_LABEL_COLOR);
                       }}
                       className="text-[12px] font-medium text-[var(--color-xanban-primary)] hover:underline"
                     >
@@ -201,21 +190,7 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
                   placeholder="Label name"
                   className="h-8 flex-1 min-w-[120px] rounded border border-[var(--board-line)] bg-[var(--board-header-bg)] px-2 text-[13px] focus:border-[#635FC7] focus:outline-none"
                 />
-                <div className="flex gap-1">
-                  {LABEL_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setNewColor(c)}
-                      className={cn(
-                        "h-6 w-6 rounded-full border-2",
-                        newColor === c ? "border-[var(--board-text)]" : "border-transparent"
-                      )}
-                      style={{ backgroundColor: c }}
-                      aria-label={`Color ${c}`}
-                    />
-                  ))}
-                </div>
+                <ColumnColorPicker value={newColor} onChange={setNewColor} />
                 <button
                   type="button"
                   onClick={handleAdd}
