@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:data": "node scripts/seed-data-json.mjs",
+    "seed:data:reset": "node scripts/seed-data-json.mjs --reset",
+    "seed:data:dry-run": "node scripts/seed-data-json.mjs --dry-run"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

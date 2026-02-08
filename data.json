@@ -1,68 +1,137 @@
 {
+  "version": 2,
+  "seed_name": "xanban-default-data",
+  "generated_at": "2026-02-08T10:59:00.485Z",
+  "labels": [
+    {
+      "name": "frontend",
+      "color": "#49C4E5"
+    },
+    {
+      "name": "backend",
+      "color": "#635FC7"
+    },
+    {
+      "name": "research",
+      "color": "#67E2AE"
+    },
+    {
+      "name": "qa",
+      "color": "#F2C94C"
+    },
+    {
+      "name": "marketing",
+      "color": "#FF9F1A"
+    },
+    {
+      "name": "strategy",
+      "color": "#A8A4FF"
+    }
+  ],
   "boards": [
     {
       "name": "Platform Launch",
+      "position": 0,
       "columns": [
         {
           "name": "Todo",
-          "tasks": [
+          "position": 0,
+          "wip_limit": null,
+          "color": "#49C4E5",
+          "cards": [
             {
               "title": "Build UI for onboarding flow",
               "description": "",
-              "status": "Todo",
+              "position": 0,
+              "due_date": "2026-02-17",
+              "priority": "medium",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Sign up page",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Sign in page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Welcome page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Build UI for search",
               "description": "",
-              "status": "Todo",
+              "position": 1,
+              "due_date": "2026-02-19",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "backend"
+              ],
               "subtasks": [
                 {
                   "title": "Search page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 }
               ]
             },
             {
               "title": "Build settings UI",
               "description": "",
-              "status": "Todo",
+              "position": 2,
+              "due_date": "2026-02-21",
+              "priority": "medium",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Account page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Billing page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "QA and test all major user journeys",
               "description": "Once we feel version one is ready, we need to rigorously test it both internally and externally to identify any major gaps.",
-              "status": "Todo",
+              "position": 3,
+              "due_date": "2026-02-23",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "qa",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Internal testing",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "External testing",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 }
               ]
             }
@@ -70,110 +139,171 @@
         },
         {
           "name": "Doing",
-          "tasks": [
+          "position": 1,
+          "wip_limit": null,
+          "color": "#635FC7",
+          "cards": [
             {
               "title": "Design settings and search pages",
               "description": "",
-              "status": "Doing",
+              "position": 0,
+              "due_date": "2026-02-14",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "backend"
+              ],
               "subtasks": [
                 {
                   "title": "Settings - Account page",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Settings - Billing page",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 },
                 {
                   "title": "Search page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Add account management endpoints",
               "description": "",
-              "status": "Doing",
+              "position": 1,
+              "due_date": "2026-02-16",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "backend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Upgrade plan",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Cancel plan",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 },
                 {
                   "title": "Update payment method",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Design onboarding flow",
               "description": "",
-              "status": "Doing",
+              "position": 2,
+              "due_date": "2026-02-18",
+              "priority": "medium",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Sign up page",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Sign in page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Welcome page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Add search enpoints",
               "description": "",
-              "status": "Doing",
+              "position": 3,
+              "due_date": "2026-02-20",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "backend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Add search endpoint",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Define search filters",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "Add authentication endpoints",
               "description": "",
-              "status": "Doing",
+              "position": 4,
+              "due_date": "2026-02-22",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "backend",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Define user model",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Add auth endpoints",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "Research pricing points of various competitors and trial different business models",
               "description": "We know what we're planning to build for version one. Now we need to finalise the first pricing model we'll use. Keep iterating the subtasks until we have a coherent proposition.",
-              "status": "Doing",
+              "position": 5,
+              "due_date": "2026-02-24",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "backend"
+              ],
               "subtasks": [
                 {
                   "title": "Research competitor pricing and business models",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Outline a business model that works for our solution",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Talk to potential customers about our proposed solution and ask for fair price expectancy",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             }
@@ -181,101 +311,165 @@
         },
         {
           "name": "Done",
-          "tasks": [
+          "position": 2,
+          "wip_limit": null,
+          "color": "#67E2AE",
+          "cards": [
             {
               "title": "Conduct 5 wireframe tests",
               "description": "Ensure the layout continues to make sense and we have strong buy-in from potential users.",
-              "status": "Done",
+              "position": 0,
+              "due_date": "2026-02-08",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "qa"
+              ],
               "subtasks": [
                 {
                   "title": "Complete 5 wireframe prototype tests",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 }
               ]
             },
             {
               "title": "Create wireframe prototype",
               "description": "Create a greyscale clickable wireframe prototype to test our asssumptions so far.",
-              "status": "Done",
+              "position": 1,
+              "due_date": "2026-02-07",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "qa"
+              ],
               "subtasks": [
                 {
                   "title": "Create clickable wireframe prototype in Balsamiq",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 }
               ]
             },
             {
               "title": "Review results of usability tests and iterate",
               "description": "Keep iterating through the subtasks until we're clear on the core concepts for the app.",
-              "status": "Done",
+              "position": 2,
+              "due_date": "2026-02-06",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "qa",
+                "research"
+              ],
               "subtasks": [
                 {
                   "title": "Meet to review notes from previous tests and plan changes",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Make changes to paper prototypes",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 },
                 {
                   "title": "Conduct 5 usability tests",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Create paper prototypes and conduct 10 usability tests with potential customers",
               "description": "",
-              "status": "Done",
+              "position": 3,
+              "due_date": "2026-02-05",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "frontend",
+                "qa"
+              ],
               "subtasks": [
                 {
                   "title": "Create paper prototypes for version one",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Complete 10 usability tests",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "Market discovery",
               "description": "We need to define and refine our core product. Interviews will help us learn common pain points and help us define the strongest MVP.",
-              "status": "Done",
+              "position": 4,
+              "due_date": "2026-02-04",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "research",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Interview 10 prospective customers",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 }
               ]
             },
             {
               "title": "Competitor analysis",
               "description": "",
-              "status": "Done",
+              "position": 5,
+              "due_date": "2026-02-03",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "research",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Find direct and indirect competitors",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "SWOT analysis for each competitor",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "Research the market",
               "description": "We need to get a solid overview of the market to ensure we have up-to-date estimates of market size and demand.",
-              "status": "Done",
+              "position": 6,
+              "due_date": "2026-02-02",
+              "priority": "none",
+              "is_archived": false,
+              "label_names": [
+                "backend",
+                "research"
+              ],
               "subtasks": [
                 {
                   "title": "Write up research analysis",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 0
                 },
                 {
                   "title": "Calculate TAM",
-                  "isCompleted": true
+                  "is_completed": true,
+                  "position": 1
                 }
               ]
             }
@@ -285,80 +479,118 @@
     },
     {
       "name": "Marketing Plan",
+      "position": 1,
       "columns": [
         {
           "name": "Todo",
-          "tasks": [
+          "position": 0,
+          "wip_limit": null,
+          "color": "#49C4E5",
+          "cards": [
             {
               "title": "Plan Product Hunt launch",
               "description": "",
-              "status": "Todo",
+              "position": 0,
+              "due_date": "2026-02-26",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "marketing",
+                "strategy"
+              ],
               "subtasks": [
                 {
                   "title": "Find hunter",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Gather assets",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Draft product page",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 },
                 {
                   "title": "Notify customers",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 3
                 },
                 {
                   "title": "Notify network",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 4
                 },
                 {
                   "title": "Launch!",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 5
                 }
               ]
             },
             {
               "title": "Share on Show HN",
               "description": "",
-              "status": "",
+              "position": 1,
+              "due_date": "2026-02-28",
+              "priority": "low",
+              "is_archived": false,
+              "label_names": [
+                "marketing",
+                "strategy"
+              ],
               "subtasks": [
                 {
                   "title": "Draft out HN post",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Get feedback and refine",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Publish post",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             },
             {
               "title": "Write launch article to publish on multiple channels",
               "description": "",
-              "status": "",
+              "position": 2,
+              "due_date": "2026-03-02",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "marketing",
+                "strategy"
+              ],
               "subtasks": [
                 {
                   "title": "Write article",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Publish on LinkedIn",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Publish on Inndie Hackers",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 },
                 {
                   "title": "Publish on Medium",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 3
                 }
               ]
             }
@@ -366,51 +598,80 @@
         },
         {
           "name": "Doing",
-          "tasks": []
+          "position": 1,
+          "wip_limit": null,
+          "color": "#635FC7",
+          "cards": []
         },
         {
           "name": "Done",
-          "tasks": []
+          "position": 2,
+          "wip_limit": null,
+          "color": "#67E2AE",
+          "cards": []
         }
       ]
     },
     {
       "name": "Roadmap",
+      "position": 2,
       "columns": [
         {
           "name": "Now",
-          "tasks": [
+          "position": 0,
+          "wip_limit": null,
+          "color": "#49C4E5",
+          "cards": [
             {
               "title": "Launch version one",
               "description": "",
-              "status": "",
+              "position": 0,
+              "due_date": "2026-03-04",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "marketing",
+                "strategy"
+              ],
               "subtasks": [
                 {
                   "title": "Launch privately to our waitlist",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Launch publicly on PH, HN, etc.",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 }
               ]
             },
             {
               "title": "Review early feedback and plan next steps for roadmap",
               "description": "Beyond the initial launch, we're keeping the initial roadmap completely empty. This meeting will help us plan out our next steps based on actual customer feedback.",
-              "status": "",
+              "position": 1,
+              "due_date": "2026-03-06",
+              "priority": "high",
+              "is_archived": false,
+              "label_names": [
+                "research",
+                "marketing"
+              ],
               "subtasks": [
                 {
                   "title": "Interview 10 customers",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 0
                 },
                 {
                   "title": "Review common customer pain points and suggestions",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 1
                 },
                 {
                   "title": "Outline next steps for our roadmap",
-                  "isCompleted": false
+                  "is_completed": false,
+                  "position": 2
                 }
               ]
             }
@@ -418,11 +679,17 @@
         },
         {
           "name": "Next",
-          "tasks": []
+          "position": 1,
+          "wip_limit": null,
+          "color": "#635FC7",
+          "cards": []
         },
         {
           "name": "Later",
-          "tasks": []
+          "position": 2,
+          "wip_limit": null,
+          "color": "#67E2AE",
+          "cards": []
         }
       ]
     }
