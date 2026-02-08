@@ -114,9 +114,9 @@ export function CommandPalette({ open, onClose, commands }: CommandPaletteProps)
                       : "text-[var(--board-text)] hover:bg-[var(--board-bg)]"
                   )}
                 >
-                  <span>{item.label}</span>
+                  <span className="min-w-0 truncate">{item.label}</span>
                   {item.shortcut && (
-                    <kbd className="rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--board-text-muted)]">
+                    <kbd className="shrink-0 rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--board-text-muted)]">
                       {item.shortcut}
                     </kbd>
                   )}

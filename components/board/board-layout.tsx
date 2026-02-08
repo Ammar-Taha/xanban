@@ -2,6 +2,7 @@
 
 import type { BoardSummary } from "@/lib/board-ui-store";
 import { useBoardUIStore } from "@/lib/board-ui-store";
+import { SHORTCUTS } from "@/lib/shortcuts";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -85,23 +86,54 @@ function BoardLayoutContent({
     const handleKeyDown = (e: KeyboardEvent) => {
       const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
       const mod = isMac ? e.metaKey : e.ctrlKey;
+      const el = document.activeElement;
+      const isInput = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el as HTMLElement).isContentEditable);
+      const modalsOpen = addTaskModalOpen || searchOpen || editBoardModalOpen || deleteBoardModalOpen || manageLabelsModalOpen || addBoardModalOpen || viewCardId || editCardId || deleteTask;
+
       if (mod && e.key === "k") {
         e.preventDefault();
         setCommandPaletteOpen(!commandPaletteOpen);
         return;
       }
+      if (isInput || commandPaletteOpen) return;
+
       if (e.key === "n" && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const el = document.activeElement;
-        const isInput = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el as HTMLElement).isContentEditable);
-        if (isInput) return;
-        if (addTaskModalOpen || searchOpen || editBoardModalOpen || deleteBoardModalOpen || manageLabelsModalOpen || addBoardModalOpen || viewCardId || editCardId || deleteTask) return;
+        if (modalsOpen) return;
         e.preventDefault();
         setAddTaskModalOpen(true);
+        return;
+      }
+
+      if (modalsOpen) return;
+
+      if (mod && e.key === "b" && !e.shiftKey) {
+        e.preventDefault();
+        if (selectedBoardId) setBoardMenuOpenTrigger((t) => t + 1);
+        return;
+      }
+      if (mod && e.shiftKey && e.key === "B") {
+        e.preventDefault();
+        setAddBoardModalOpen(true);
+        return;
+      }
+      if (mod && e.shiftKey && e.key === "C") {
+        e.preventDefault();
+        if (selectedBoardId) setAddColumnModalOpen(true);
+        return;
+      }
+      if (mod && e.shiftKey && e.key === "L") {
+        e.preventDefault();
+        setManageLabelsModalOpen(true);
+        return;
+      }
+      if (mod && e.key === "\\") {
+        e.preventDefault();
+        setSidebarOpen(!sidebarOpen);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [commandPaletteOpen, addTaskModalOpen, searchOpen, editBoardModalOpen, deleteBoardModalOpen, manageLabelsModalOpen, addBoardModalOpen, viewCardId, editCardId, deleteTask, setAddTaskModalOpen, setCommandPaletteOpen]);
+  }, [commandPaletteOpen, addTaskModalOpen, searchOpen, editBoardModalOpen, deleteBoardModalOpen, manageLabelsModalOpen, addBoardModalOpen, viewCardId, editCardId, deleteTask, selectedBoardId, sidebarOpen, setAddTaskModalOpen, setCommandPaletteOpen, setAddBoardModalOpen, setAddColumnModalOpen, setManageLabelsModalOpen, setSidebarOpen]);
 
   const mainContent = !hasBoards ? (
     <DashboardEmptyState onCreateBoard={() => setAddBoardModalOpen(true)} />
@@ -135,30 +167,32 @@ function BoardLayoutContent({
       {
         id: "add-task",
         label: "Add new task",
-        shortcut: "N",
+        shortcut: SHORTCUTS.addTask,
         onSelect: () => setAddTaskModalOpen(true),
       },
       {
         id: "search",
         label: "Search tasks",
-        shortcut: "⌘K",
+        shortcut: SHORTCUTS.search,
         onSelect: () => setSearchOpen(true),
       },
       ...(selectedBoardId
         ? [
-            { id: "board-options", label: "Board options", onSelect: () => setBoardMenuOpenTrigger((t) => t + 1) },
-            { id: "add-column", label: "Add new column", onSelect: () => setAddColumnModalOpen(true) },
+            { id: "board-options", label: "Board options", shortcut: SHORTCUTS.boardOptions, onSelect: () => setBoardMenuOpenTrigger((t) => t + 1) },
+            { id: "add-column", label: "Add new column", shortcut: SHORTCUTS.addColumn, onSelect: () => setAddColumnModalOpen(true) },
           ]
         : []),
-      { id: "manage-labels", label: "Manage labels", onSelect: () => setManageLabelsModalOpen(true) },
+      { id: "manage-labels", label: "Manage labels", shortcut: SHORTCUTS.manageLabels, onSelect: () => setManageLabelsModalOpen(true) },
       {
         id: "toggle-sidebar",
         label: sidebarOpen ? "Hide sidebar" : "Show sidebar",
+        shortcut: SHORTCUTS.toggleSidebar,
         onSelect: () => setSidebarOpen(!sidebarOpen),
       },
       {
         id: "new-board",
         label: "Create new board",
+        shortcut: SHORTCUTS.createBoard,
         onSelect: () => setAddBoardModalOpen(true),
       },
     ],

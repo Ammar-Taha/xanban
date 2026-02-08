@@ -5,6 +5,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import type { BoardSummary } from "@/lib/board-ui-store";
+import { SHORTCUTS } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 import {
   closestCenter,
@@ -220,22 +221,6 @@ export function Sidebar({
           {/* Spacer */}
           <div className="min-h-[1rem] flex-1" />
 
-          {/* Command palette hint — only when sidebar expanded */}
-          {sidebarOpen && (
-            <button
-              type="button"
-              onClick={() => setCommandPaletteOpen(true)}
-              className="mx-6 mb-2 flex w-[calc(100%-3rem)] items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--board-line)] bg-transparent py-2 text-[12px] font-medium text-[var(--board-text-muted)] transition-colors hover:border-[var(--color-xanban-primary)] hover:bg-[var(--board-bg)] hover:text-[var(--color-xanban-primary)]"
-              title="Open command palette (⌘K or Ctrl+K)"
-            >
-              <Keyboard className="h-4 w-4 shrink-0" />
-              <span>Commands</span>
-              <kbd className="rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-1.5 py-0.5 font-mono text-[10px]">
-                ⌘K
-              </kbd>
-            </button>
-          )}
-
           {/* User block: collapsible; collapsed = icon + display name; expanded = header + email + sign out above */}
           {user && (
             <div
@@ -310,28 +295,45 @@ export function Sidebar({
 
           {/* Theme toggle: full when open, compact when collapsed */}
           {sidebarOpen ? (
-            <div className="mx-6 mb-4 flex items-center justify-center gap-4 rounded-lg bg-[var(--board-bg)] py-3">
-              <Sun className="h-5 w-5 shrink-0 text-[var(--board-text-muted)]" />
-              <button
-                type="button"
-                role="switch"
-                aria-checked={theme === "dark"}
-                aria-label="Toggle dark mode"
-                className={cn(
-                  "relative h-5 w-12 shrink-0 rounded-full transition-colors",
-                  "bg-[var(--color-xanban-primary)]"
-                )}
-                onClick={toggleTheme}
-              >
-                <span
+            <>
+              <div className="mx-6 mb-4 flex items-center justify-center gap-4 rounded-lg bg-[var(--board-bg)] py-3">
+                <Sun className="h-5 w-5 shrink-0 text-[var(--board-text-muted)]" />
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={theme === "dark"}
+                  aria-label="Toggle dark mode"
                   className={cn(
-                    "absolute top-1 h-3 w-3 rounded-full bg-white transition-[left] duration-200",
-                    theme === "dark" ? "left-8" : "left-1"
+                    "relative h-5 w-12 shrink-0 rounded-full transition-colors",
+                    "bg-[var(--color-xanban-primary)]"
                   )}
-                />
-              </button>
-              <Moon className="h-5 w-5 shrink-0 text-[var(--board-text-muted)]" />
-            </div>
+                  onClick={toggleTheme}
+                >
+                  <span
+                    className={cn(
+                      "absolute top-1 h-3 w-3 rounded-full bg-white transition-[left] duration-200",
+                      theme === "dark" ? "left-8" : "left-1"
+                    )}
+                  />
+                </button>
+                <Moon className="h-5 w-5 shrink-0 text-[var(--board-text-muted)]" />
+              </div>
+              {/* Command palette: same look as theme block — gray background, no border */}
+              <div className="mx-6 mb-4 flex items-center justify-center rounded-lg bg-[var(--board-bg)] py-3">
+                <button
+                  type="button"
+                  onClick={() => setCommandPaletteOpen(true)}
+                  className="flex items-center justify-center gap-2 text-[var(--board-text-muted)] transition-colors hover:text-[var(--board-text)]"
+                  title={`Open command palette (${SHORTCUTS.commandPalette})`}
+                >
+                  <Keyboard className="h-5 w-5 shrink-0" />
+                  <span className="text-[13px] font-medium">Commands</span>
+                  <kbd className="rounded bg-[var(--board-header-bg)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--board-text-muted)]">
+                    {SHORTCUTS.commandPalette}
+                  </kbd>
+                </button>
+              </div>
+            </>
           ) : (
             /* Vertically centered with the floating Show sidebar pill (bottom-8 + half pill height) */
             <div className="mb-[50px] flex justify-center">
