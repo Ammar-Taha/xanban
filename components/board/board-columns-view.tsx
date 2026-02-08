@@ -19,19 +19,16 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { Plus } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-const COLUMN_DOT_COLORS = [
-  "bg-[#49C4E5]",
-  "bg-[#635FC7]",
-  "bg-[#67E2AE]",
-];
+const COLUMN_DOT_FALLBACKS = ["#49C4E5", "#635FC7", "#67E2AE"];
 
 type Column = {
   id: string;
   name: string;
   position: number;
+  color?: string | null;
 };
 
 type Card = {
@@ -160,7 +157,7 @@ export function BoardColumnsView({
     const supabase = createClient();
     const { data: cols } = await supabase
       .from("columns")
-      .select("id, name, position")
+      .select("id, name, position, color")
       .eq("board_id", boardId)
       .order("position", { ascending: true });
     const columnList = (cols ?? []) as Column[];
@@ -278,7 +275,32 @@ export function BoardColumnsView({
       setActiveCard(null);
       const { active, over } = event;
       if (!over?.id) return;
-      const cardId = active.id as string;
+
+      const activeId = active.id as string;
+      const isColumnDrag = columns.some((c) => c.id === activeId);
+
+      if (isColumnDrag) {
+        const draggedColumnId = activeId;
+        const overColumnId = over.id as string;
+        if (!columns.some((c) => c.id === overColumnId) || draggedColumnId === overColumnId) return;
+        const fromIndex = columns.findIndex((c) => c.id === draggedColumnId);
+        const toIndex = columns.findIndex((c) => c.id === overColumnId);
+        if (fromIndex === -1 || toIndex === -1) return;
+        const newOrder = [...columns];
+        const [removed] = newOrder.splice(fromIndex, 1);
+        newOrder.splice(toIndex, 0, removed);
+        setColumns(newOrder);
+        const supabase = createClient();
+        await Promise.all(
+          newOrder.map((col, position) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+            (supabase.from("columns") as any).update({ position }).eq("id", col.id)
+          )
+        );
+        return;
+      }
+
+      const cardId = activeId;
       let targetColumnId: string | null = null;
       if (columns.some((c) => c.id === over.id)) {
         targetColumnId = over.id as string;
@@ -463,21 +485,38 @@ function ColumnDropZone({
   onCardClick: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
+    id: column.id,
+    data: { type: "column" },
+  });
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
         "flex w-[280px] shrink-0 flex-col rounded-lg bg-[var(--board-bg)] transition-colors",
-        isOver && "ring-2 ring-[var(--color-xanban-primary)] ring-offset-2 ring-offset-[var(--board-bg)]"
+        isOver && "ring-2 ring-[var(--color-xanban-primary)] ring-offset-2 ring-offset-[var(--board-bg)]",
+        isDragging && "opacity-60"
       )}
     >
       <div className="mb-4 flex items-center gap-2">
         <span
-          className={cn(
-            "h-3 w-3 shrink-0 rounded-full",
-            COLUMN_DOT_COLORS[columnIndex % COLUMN_DOT_COLORS.length]
-          )}
+          ref={setDragRef}
+          {...listeners}
+          {...attributes}
+          className="cursor-grab active:cursor-grabbing rounded p-0.5 text-[var(--board-text-muted)] hover:bg-[var(--board-line)] hover:text-[var(--board-text)]"
+          aria-label="Drag to reorder column"
+        >
+          <GripVertical className="h-4 w-4" />
+        </span>
+        <span
+          className="h-3 w-3 shrink-0 rounded-full"
+          style={{
+            backgroundColor:
+              column.color && /^#[0-9A-Fa-f]{6}$/.test(column.color)
+                ? column.color
+                : COLUMN_DOT_FALLBACKS[columnIndex % COLUMN_DOT_FALLBACKS.length],
+          }}
         />
         <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-[var(--board-text-muted)]">
           {column.name} ({cards.length})

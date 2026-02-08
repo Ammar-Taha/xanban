@@ -68,9 +68,21 @@ CREATE TABLE IF NOT EXISTS public.columns (
   name TEXT NOT NULL,
   position INTEGER NOT NULL DEFAULT 0,
   wip_limit INTEGER NULL,
+  color TEXT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add color column for existing databases that ran schema before this was added
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'columns' AND column_name = 'color'
+  ) THEN
+    ALTER TABLE public.columns ADD COLUMN color TEXT NULL;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_columns_board_id ON public.columns(board_id);
 CREATE INDEX IF NOT EXISTS idx_columns_board_position ON public.columns(board_id, position);

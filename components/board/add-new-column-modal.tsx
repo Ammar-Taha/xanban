@@ -1,8 +1,11 @@
 "use client";
 
+import { ColumnColorPicker } from "@/components/board/column-color-picker";
 import { createClient } from "@/lib/supabase/client";
 import { X } from "lucide-react";
 import { useCallback, useState } from "react";
+
+const DEFAULT_COLUMN_COLOR = "#635FC7";
 
 type AddNewColumnModalProps = {
   open: boolean;
@@ -18,11 +21,13 @@ export function AddNewColumnModal({
   onColumnAdded,
 }: AddNewColumnModalProps) {
   const [name, setName] = useState("");
+  const [color, setColor] = useState(DEFAULT_COLUMN_COLOR);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = useCallback(() => {
     setName("");
+    setColor(DEFAULT_COLUMN_COLOR);
     setError(null);
   }, []);
 
@@ -62,6 +67,7 @@ export function AddNewColumnModal({
           board_id: boardId,
           name: trimmed,
           position: nextPosition,
+          color: color || null,
         })) as { error: { message: string } | null };
 
         if (insertError) {
@@ -75,7 +81,7 @@ export function AddNewColumnModal({
         setIsSubmitting(false);
       }
     },
-    [name, boardId, reset, handleClose, onColumnAdded]
+    [name, color, boardId, reset, handleClose, onColumnAdded]
   );
 
   if (!open) return null;
@@ -128,6 +134,12 @@ export function AddNewColumnModal({
               className="h-10 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] placeholder:opacity-25 focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
               autoFocus
             />
+          </div>
+          <div className="space-y-2">
+            <label className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">
+              Column color
+            </label>
+            <ColumnColorPicker value={color} onChange={setColor} />
           </div>
 
           {error && (

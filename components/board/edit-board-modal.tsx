@@ -1,10 +1,13 @@
 "use client";
 
+import { ColumnColorPicker } from "@/components/board/column-color-picker";
 import { createClient } from "@/lib/supabase/client";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-type ColumnRow = { id: string | null; name: string };
+const DEFAULT_COLUMN_COLOR = "#635FC7";
+
+type ColumnRow = { id: string | null; name: string; color: string };
 
 type EditBoardModalProps = {
   open: boolean;
@@ -20,7 +23,7 @@ export function EditBoardModal({
   onSaved,
 }: EditBoardModalProps) {
   const [boardName, setBoardName] = useState("");
-  const [columns, setColumns] = useState<ColumnRow[]>([{ id: null, name: "" }]);
+  const [columns, setColumns] = useState<ColumnRow[]>([{ id: null, name: "", color: DEFAULT_COLUMN_COLOR }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,15 +44,15 @@ export function EditBoardModal({
     setBoardName(board.name);
     const { data: cols } = (await supabase
       .from("columns")
-      .select("id, name, position")
+      .select("id, name, position, color")
       .eq("board_id", boardId)
       .order("position", { ascending: true })) as {
-      data: { id: string; name: string; position: number }[] | null;
+      data: { id: string; name: string; position: number; color: string | null }[] | null;
     };
     setColumns(
       (cols ?? []).length > 0
-        ? (cols ?? []).map((c) => ({ id: c.id, name: c.name }))
-        : [{ id: null, name: "" }]
+        ? (cols ?? []).map((c) => ({ id: c.id, name: c.name, color: c.color && /^#[0-9A-Fa-f]{6}$/.test(c.color) ? c.color : DEFAULT_COLUMN_COLOR }))
+        : [{ id: null, name: "", color: DEFAULT_COLUMN_COLOR }]
     );
     setLoading(false);
   }, [boardId, open]);
@@ -59,7 +62,7 @@ export function EditBoardModal({
   }, [open, boardId, fetchBoard]);
 
   const addColumn = useCallback(() => {
-    setColumns((prev) => [...prev, { id: null, name: "" }]);
+    setColumns((prev) => [...prev, { id: null, name: "", color: DEFAULT_COLUMN_COLOR }]);
   }, []);
 
   const removeColumn = useCallback((index: number) => {
@@ -73,6 +76,14 @@ export function EditBoardModal({
     setColumns((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], name };
+      return next;
+    });
+  }, []);
+
+  const setColumnColorAt = useCallback((index: number, color: string) => {
+    setColumns((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], color };
       return next;
     });
   }, []);
@@ -130,7 +141,7 @@ export function EditBoardModal({
             if (row.id) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase infers never
               await (supabase.from("columns") as any)
-                .update({ name: trimmedName, position: index })
+                .update({ name: trimmedName, position: index, color: row.color || null })
                 .eq("id", row.id);
             } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase infers never
@@ -138,6 +149,7 @@ export function EditBoardModal({
                 board_id: boardId,
                 name: trimmedName,
                 position: index,
+                color: row.color || null,
               });
             }
           })
@@ -210,12 +222,18 @@ export function EditBoardModal({
               <div className="space-y-3">
                 {columns.map((row, index) => (
                   <div key={index} className="flex items-center gap-2">
+                    <ColumnColorPicker
+                      value={row.color}
+                      onChange={(color) => setColumnColorAt(index, color)}
+                      showHex={false}
+                      className="shrink-0"
+                    />
                     <input
                       type="text"
                       placeholder="e.g. Todo"
                       value={row.name}
                       onChange={(e) => setColumnAt(index, e.target.value)}
-                      className="h-10 flex-1 rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] placeholder:opacity-25 focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+                      className="h-10 flex-1 min-w-0 rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] placeholder:opacity-25 focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
                     />
                     <button
                       type="button"
