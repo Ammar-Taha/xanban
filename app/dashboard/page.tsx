@@ -35,9 +35,25 @@ export default function DashboardPage() {
       .from("boards")
       .select("id, name")
       .eq("user_id", user.id)
+      .order("position", { ascending: true })
       .order("created_at", { ascending: true });
     setBoards((data as BoardSummary[]) ?? []);
   }, [user?.id]);
+
+  const handleReorderBoards = useCallback(
+    async (orderedIds: string[]) => {
+      if (orderedIds.length === 0) return;
+      const supabase = createClient();
+      await Promise.all(
+        orderedIds.map((id, position) =>
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+          (supabase.from("boards") as any).update({ position }).eq("id", id)
+        )
+      );
+      fetchBoards();
+    },
+    [fetchBoards]
+  );
 
   useEffect(() => {
     fetchBoards();
@@ -98,6 +114,7 @@ export default function DashboardPage() {
       onBoardCreated={handleBoardCreated}
       onBoardDeleted={handleBoardDeleted}
       onBoardUpdated={handleBoardUpdated}
+      onReorderBoards={handleReorderBoards}
       onSelectBoard={setSelectedBoardId}
       onTaskCreated={handleTaskCreated}
       onColumnAdded={handleTaskCreated}

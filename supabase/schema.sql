@@ -13,12 +13,31 @@ CREATE TABLE IF NOT EXISTS public.boards (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
   name TEXT NOT NULL,
+  position INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_boards_user_id ON public.boards(user_id);
 CREATE INDEX IF NOT EXISTS idx_boards_updated_at ON public.boards(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_boards_user_position ON public.boards(user_id, position);
+
+-- Add position column for existing databases
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'boards' AND column_name = 'position'
+  ) THEN
+    ALTER TABLE public.boards ADD COLUMN position INTEGER NOT NULL DEFAULT 0;
+    -- Backfill by created_at order per user
+    WITH ordered AS (
+      SELECT id, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at) - 1 AS rn
+      FROM public.boards
+    )
+    UPDATE public.boards b SET position = ordered.rn FROM ordered WHERE b.id = ordered.id;
+  END IF;
+END $$;
 
 DO $$
 BEGIN

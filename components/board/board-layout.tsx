@@ -28,6 +28,7 @@ function BoardLayoutContent({
   onBoardCreated,
   onBoardDeleted,
   onBoardUpdated,
+  onReorderBoards,
   onSelectBoard,
   onTaskCreated,
   onColumnAdded,
@@ -39,6 +40,7 @@ function BoardLayoutContent({
   onBoardCreated?: (boardId: string) => void;
   onBoardDeleted?: () => void;
   onBoardUpdated?: () => void;
+  onReorderBoards?: (orderedIds: string[]) => void;
   onSelectBoard?: (id: string) => void;
   onTaskCreated?: () => void;
   onColumnAdded?: () => void;
@@ -104,6 +106,7 @@ function BoardLayoutContent({
         boards={boards}
         selectedBoardId={selectedBoardId}
         onSelectBoard={onSelectBoard}
+        onReorderBoards={onReorderBoards}
       />
       <ShowSidebarButton />
 

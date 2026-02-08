@@ -76,10 +76,18 @@ export function AddNewBoardModal({
       const supabase = createClient();
 
       try {
+        const { data: maxPos } = (await supabase
+          .from("boards")
+          .select("position")
+          .eq("user_id", user.id)
+          .order("position", { ascending: false })
+          .limit(1)
+          .maybeSingle()) as { data: { position: number } | null };
+        const nextPosition = maxPos?.position != null ? maxPos.position + 1 : 0;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client generic inference fails with our Database type
         const { data: boardData, error: boardError } = (await supabase
           .from("boards")
-          .insert({ user_id: user.id, name } as any)
+          .insert({ user_id: user.id, name, position: nextPosition } as any)
           .select("id")
           .single()) as {
           data: { id: string } | null;

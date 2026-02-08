@@ -5,22 +5,89 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import type { BoardSummary } from "@/lib/board-ui-store";
-import { EyeOff, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { EyeOff, GripVertical, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
+import { useCallback, useState } from "react";
 
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
+
+function DraggableBoardRow({
+  board,
+  isSelected,
+  onSelect,
+  canReorder,
+}: {
+  board: BoardSummary;
+  isSelected: boolean;
+  onSelect: () => void;
+  canReorder: boolean;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: board.id });
+  const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
+    id: board.id,
+    data: { type: "board" },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex items-center gap-1 rounded-r-[100px] transition-colors",
+        isOver && "ring-1 ring-[var(--color-xanban-primary)] ring-inset",
+        isDragging && "opacity-60"
+      )}
+    >
+      {canReorder && (
+        <span
+          ref={setDragRef}
+          {...listeners}
+          {...attributes}
+          className="cursor-grab active:cursor-grabbing rounded p-1 text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
+          aria-label="Drag to reorder board"
+        >
+          <GripVertical className="h-4 w-4" />
+        </span>
+      )}
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          "flex flex-1 min-w-0 items-center gap-3 rounded-r-[100px] py-3.5 pr-6 text-left text-[15px] font-bold leading-[1.26] transition-colors",
+          canReorder ? "pl-2" : "pl-8",
+          isSelected
+            ? "bg-[var(--color-xanban-primary)] text-white"
+            : "text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
+        )}
+      >
+        <LayoutDashboard className="h-4 w-4 shrink-0" />
+        <span className="truncate">{board.name}</span>
+      </button>
+    </div>
+  );
+}
 
 export function Sidebar({
   boards = [],
   selectedBoardId = null,
   onSelectBoard,
+  onReorderBoards,
   className,
 }: {
   boards?: BoardSummary[];
   selectedBoardId?: string | null;
   onSelectBoard?: (id: string) => void;
+  onReorderBoards?: (orderedIds: string[]) => void;
   className?: string;
 }) {
   const { theme, toggleTheme } = useTheme();
@@ -28,6 +95,30 @@ export function Sidebar({
   const boardCount = boards.length;
   const { user, signOut } = useAuth();
   const [userExpanded, setUserExpanded] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  );
+
+  const handleBoardDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over?.id || !onReorderBoards || boards.length < 2) return;
+      const draggedId = active.id as string;
+      const overId = over.id as string;
+      if (!boards.some((b) => b.id === draggedId) || !boards.some((b) => b.id === overId) || draggedId === overId)
+        return;
+      const fromIndex = boards.findIndex((b) => b.id === draggedId);
+      const toIndex = boards.findIndex((b) => b.id === overId);
+      if (fromIndex === -1 || toIndex === -1) return;
+      const newOrder = [...boards];
+      const [removed] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, removed);
+      onReorderBoards(newOrder.map((b) => b.id));
+    },
+    [boards, onReorderBoards]
+  );
 
   return (
     <>
@@ -75,26 +166,20 @@ export function Sidebar({
               <p className="mt-12 px-8 text-[12px] font-bold uppercase leading-[1.26] tracking-[0.2em] text-[var(--board-text-muted)]">
                 All boards ({boardCount})
               </p>
-              <div className="mt-4 flex flex-col gap-1 pr-8">
-                {boards.map((board) => {
-                  const isSelected = board.id === selectedBoardId;
-                  return (
-                    <button
+              <DndContext sensors={sensors} onDragEnd={handleBoardDragEnd}>
+                <div className="mt-4 flex flex-col gap-1 pr-8">
+                  {boards.map((board) => (
+                    <DraggableBoardRow
                       key={board.id}
-                      type="button"
-                      onClick={() => onSelectBoard?.(board.id)}
-                      className={cn(
-                        "flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] transition-colors",
-                        isSelected
-                          ? "bg-[var(--color-xanban-primary)] text-white"
-                          : "text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
-                      )}
-                    >
-                      <LayoutDashboard className="h-4 w-4 shrink-0" />
-                      <span className="truncate">{board.name}</span>
-                    </button>
-                  );
-                })}
+                      board={board}
+                      isSelected={board.id === selectedBoardId}
+                      onSelect={() => onSelectBoard?.(board.id)}
+                      canReorder={!!onReorderBoards && boards.length > 1}
+                    />
+                  ))}
+                </div>
+              </DndContext>
+              <div className="mt-1 flex flex-col gap-1 pr-8">
                 <button
                   type="button"
                   className="flex items-center gap-3 rounded-r-[100px] py-3.5 pl-8 pr-6 text-left text-[15px] font-bold leading-[1.26] text-[var(--color-xanban-primary)] transition-colors hover:bg-[var(--color-xanban-primary)]/10"
