@@ -14,6 +14,7 @@ export function BoardHeader({
   onDeleteBoard,
   onOpenSettings,
   disableAddTask,
+  showBoardMenu = true,
 }: {
   boardName?: string | null;
   onAddTask?: () => void;
@@ -21,6 +22,8 @@ export function BoardHeader({
   onDeleteBoard?: () => void;
   onOpenSettings?: () => void;
   disableAddTask?: boolean;
+  /** When false (e.g. no board selected after delete), the three-dots Edit/Delete menu is hidden. */
+  showBoardMenu?: boolean;
 }) {
   const { sidebarOpen, setSidebarOpen } = useBoardUIStore();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -73,47 +76,49 @@ export function BoardHeader({
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">Add New Task</span>
         </button>
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setMenuOpen((o) => !o)}
-            className="flex h-10 w-10 items-center justify-center rounded text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
-            aria-label="Board options"
-          >
-            <MoreVertical className="h-5 w-5" />
-          </button>
-          {menuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-10"
-                aria-hidden
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className="absolute right-0 top-full z-20 mt-1 min-w-[180px] rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] py-2 shadow-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onEditBoard?.();
-                  }}
-                  className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
-                >
-                  Edit Board
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onDeleteBoard?.();
-                  }}
-                  className="w-full px-4 py-2 text-left text-[13px] font-medium text-[#EA5555] hover:bg-[#EA5555]/10"
-                >
-                  Delete Board
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        {showBoardMenu && (
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((o) => !o)}
+              className="flex h-10 w-10 items-center justify-center rounded text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
+              aria-label="Board options"
+            >
+              <MoreVertical className="h-5 w-5" />
+            </button>
+            {menuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  aria-hidden
+                  onClick={() => setMenuOpen(false)}
+                />
+                <div className="absolute right-0 top-full z-20 mt-1 min-w-[180px] rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] py-2 shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onEditBoard?.();
+                    }}
+                    className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                  >
+                    Edit Board
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDeleteBoard?.();
+                    }}
+                    className="w-full px-4 py-2 text-left text-[13px] font-medium text-[#EA5555] hover:bg-[#EA5555]/10"
+                  >
+                    Delete Board
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );

@@ -191,6 +191,7 @@ function BoardLayoutContent({
           onEditBoard={() => setEditBoardModalOpen(true)}
           onDeleteBoard={() => setDeleteBoardModalOpen(true)}
           disableAddTask={!selectedBoardId}
+          showBoardMenu={!!selectedBoardId}
         />
         {mainContent}
       </main>
