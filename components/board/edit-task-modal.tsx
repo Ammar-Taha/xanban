@@ -1,5 +1,6 @@
 "use client";
 
+import { LabelPicker } from "@/components/board/label-picker";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -26,6 +27,7 @@ export function EditTaskModal({
   const [description, setDescription] = useState("");
   const [subtasks, setSubtasks] = useState<{ id: string | null; title: string }[]>([{ id: null, title: "" }]);
   const [statusId, setStatusId] = useState("");
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
   const [columns, setColumns] = useState<ColumnOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +73,11 @@ export function EditTaskModal({
         ? (subs ?? []).map((s) => ({ id: s.id, title: s.title }))
         : [{ id: null, title: "" }]
     );
+    const { data: labelRows } = (await supabase
+      .from("card_labels")
+      .select("label_id")
+      .eq("card_id", cardId)) as { data: { label_id: string }[] | null };
+    setSelectedLabelIds((labelRows ?? []).map((r) => r.label_id));
     setLoading(false);
   }, [cardId, open]);
 
@@ -157,13 +164,19 @@ export function EditTaskModal({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client infers never
           await supabase.from("subtasks").insert(rows as any);
         }
+        await supabase.from("card_labels").delete().eq("card_id", cardId);
+        if (selectedLabelIds.length > 0) {
+          const labelRows = selectedLabelIds.map((label_id) => ({ card_id: cardId, label_id }));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+          await supabase.from("card_labels").insert(labelRows as any);
+        }
         handleClose();
         onSaved?.();
       } finally {
         setIsSubmitting(false);
       }
     },
-    [title, description, subtasks, statusId, initialColumnId, cardId, handleClose, onSaved]
+    [title, description, subtasks, statusId, selectedLabelIds, initialColumnId, cardId, handleClose, onSaved]
   );
 
   if (!open) return null;
@@ -258,6 +271,10 @@ export function EditTaskModal({
                 </button>
               </div>
             </div>
+            <LabelPicker
+              selectedIds={selectedLabelIds}
+              onChange={setSelectedLabelIds}
+            />
             <div className="space-y-2">
               <label className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">Status</label>
               <div className="relative">

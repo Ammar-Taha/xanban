@@ -1,7 +1,9 @@
 "use client";
 
+import { LabelChip } from "@/components/board/label-chip";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import type { Label } from "@/lib/labels";
 import { ChevronDown, MoreVertical, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -32,6 +34,7 @@ export function ViewTaskModal({
   const [subtasks, setSubtasks] = useState<SubtaskRow[]>([]);
   const [columnId, setColumnId] = useState("");
   const [columns, setColumns] = useState<ColumnOption[]>([]);
+  const [labels, setLabels] = useState<Label[]>([]);
   const [statusOpen, setStatusOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -58,6 +61,20 @@ export function ViewTaskModal({
       .eq("card_id", cardId)
       .order("position", { ascending: true })) as { data: SubtaskRow[] | null };
     setSubtasks(subs ?? []);
+    const { data: labelLinks } = (await supabase
+      .from("card_labels")
+      .select("label_id")
+      .eq("card_id", cardId)) as { data: { label_id: string }[] | null };
+    const ids = (labelLinks ?? []).map((r) => r.label_id);
+    if (ids.length > 0) {
+      const { data: labelData } = (await supabase
+        .from("labels")
+        .select("id, user_id, name, color, created_at")
+        .in("id", ids)) as { data: Label[] | null };
+      setLabels(labelData ?? []);
+    } else {
+      setLabels([]);
+    }
     setLoading(false);
   }, [cardId, open]);
 
@@ -201,6 +218,14 @@ export function ViewTaskModal({
               <p className="mt-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text-muted)]">
                 {description}
               </p>
+            )}
+
+            {labels.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {labels.map((l) => (
+                  <LabelChip key={l.id} name={l.name} color={l.color} small />
+                ))}
+              </div>
             )}
 
             <div className="mt-6">

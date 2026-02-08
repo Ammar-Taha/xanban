@@ -12,6 +12,7 @@ export function BoardHeader({
   onAddTask,
   onEditBoard,
   onDeleteBoard,
+  onManageLabels,
   onOpenSettings,
   disableAddTask,
   showBoardMenu = true,
@@ -20,6 +21,7 @@ export function BoardHeader({
   onAddTask?: () => void;
   onEditBoard?: () => void;
   onDeleteBoard?: () => void;
+  onManageLabels?: () => void;
   onOpenSettings?: () => void;
   disableAddTask?: boolean;
   /** When false (e.g. no board selected after delete), the three-dots Edit/Delete menu is hidden. */
@@ -103,6 +105,16 @@ export function BoardHeader({
                     className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
                   >
                     Edit Board
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onManageLabels?.();
+                    }}
+                    className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                  >
+                    Manage labels
                   </button>
                   <button
                     type="button"

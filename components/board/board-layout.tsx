@@ -14,6 +14,7 @@ import { DeleteBoardModal } from "./delete-board-modal";
 import { DeleteTaskModal } from "./delete-task-modal";
 import { EditBoardModal } from "./edit-board-modal";
 import { EditTaskModal } from "./edit-task-modal";
+import { ManageLabelsModal } from "./manage-labels-modal";
 import { Sidebar } from "./sidebar";
 import { ShowSidebarButton } from "./show-sidebar-button";
 import { TaskModalsProvider, useTaskModals } from "./task-modals-context";
@@ -54,6 +55,8 @@ function BoardLayoutContent({
     setEditBoardModalOpen,
     deleteBoardModalOpen,
     setDeleteBoardModalOpen,
+    manageLabelsModalOpen,
+    setManageLabelsModalOpen,
   } = useBoardUIStore();
   const {
     viewCardId,
@@ -178,6 +181,11 @@ function BoardLayoutContent({
         isDeleting={isDeletingBoard}
       />
 
+      <ManageLabelsModal
+        open={manageLabelsModalOpen}
+        onClose={() => setManageLabelsModalOpen(false)}
+      />
+
       {/* Main: header + content — starts after sidebar on desktop */}
       <main
         className={cn(
@@ -190,6 +198,7 @@ function BoardLayoutContent({
           onAddTask={() => setAddTaskModalOpen(true)}
           onEditBoard={() => setEditBoardModalOpen(true)}
           onDeleteBoard={() => setDeleteBoardModalOpen(true)}
+          onManageLabels={() => setManageLabelsModalOpen(true)}
           disableAddTask={!selectedBoardId}
           showBoardMenu={!!selectedBoardId}
         />

@@ -1,8 +1,11 @@
 "use client";
 
+import { LabelChip } from "@/components/board/label-chip";
 import { useTaskModals } from "@/components/board/task-modals-context";
+import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import type { Label } from "@/lib/labels";
 import {
   DndContext,
   DragOverlay,
@@ -42,14 +45,23 @@ type SubtaskCount = { total: number; completed: number };
 function CardContent({
   card,
   subtaskCount,
+  labels,
   className,
 }: {
   card: Card;
   subtaskCount?: SubtaskCount | null;
+  labels?: Label[];
   className?: string;
 }) {
   return (
     <div className={cn("rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 shadow-sm", className)}>
+      {labels && labels.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-1">
+          {labels.map((l) => (
+            <LabelChip key={l.id} name={l.name} color={l.color} small />
+          ))}
+        </div>
+      )}
       <p className="text-[15px] font-medium leading-[1.26] text-[var(--board-text)]">
         {card.title}
       </p>
@@ -65,10 +77,12 @@ function CardContent({
 function DraggableCard({
   card,
   subtaskCount,
+  labels,
   onOpen,
 }: {
   card: Card;
   subtaskCount: SubtaskCount | undefined;
+  labels: Label[];
   onOpen: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: card.id });
@@ -91,7 +105,7 @@ function DraggableCard({
         }}
         className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-xanban-primary)] focus-visible:ring-offset-2 rounded-lg"
       >
-        <CardContent card={card} subtaskCount={subtaskCount} className="hover:border-[var(--color-xanban-primary)]/50 hover:shadow-md transition-colors" />
+        <CardContent card={card} subtaskCount={subtaskCount} labels={labels} className="hover:border-[var(--color-xanban-primary)]/50 hover:shadow-md transition-colors" />
       </button>
     </div>
   );
@@ -104,10 +118,14 @@ export function BoardColumnsView({
   boardId: string;
   onAddColumn?: () => void;
 }) {
+  const { user } = useAuth();
   const { setViewCardId } = useTaskModals();
   const [columns, setColumns] = useState<Column[]>([]);
   const [cardsByColumn, setCardsByColumn] = useState<Record<string, Card[]>>({});
   const [subtasksByCard, setSubtasksByCard] = useState<Record<string, SubtaskCount>>({});
+  const [labelsByCard, setLabelsByCard] = useState<Record<string, Label[]>>({});
+  const [userLabels, setUserLabels] = useState<Label[]>([]);
+  const [filterLabelId, setFilterLabelId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
 
@@ -160,11 +178,44 @@ export function BoardColumnsView({
         }
       });
       setSubtasksByCard(byCard);
+
+      const { data: clData } = (await supabase
+        .from("card_labels")
+        .select("card_id, label_id")
+        .in("card_id", cardIds)) as { data: { card_id: string; label_id: string }[] | null };
+      const labelIds = [...new Set((clData ?? []).map((r) => r.label_id))];
+      let labelList: Label[] = [];
+      if (labelIds.length > 0) {
+        const { data: labelData } = (await supabase
+          .from("labels")
+          .select("id, user_id, name, color, created_at")
+          .in("id", labelIds)) as { data: Label[] | null };
+        labelList = labelData ?? [];
+      }
+      const byCardLabels: Record<string, Label[]> = {};
+      cardIds.forEach((id) => (byCardLabels[id] = []));
+      (clData ?? []).forEach((r) => {
+        const label = labelList.find((l) => l.id === r.label_id);
+        if (label && byCardLabels[r.card_id]) byCardLabels[r.card_id].push(label);
+      });
+      setLabelsByCard(byCardLabels);
     } else {
       setSubtasksByCard({});
+      setLabelsByCard({});
+    }
+
+    if (user?.id) {
+      const { data: ul } = (await supabase
+        .from("labels")
+        .select("id, user_id, name, color, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true })) as { data: Label[] | null };
+      setUserLabels(ul ?? []);
+    } else {
+      setUserLabels([]);
     }
     setLoading(false);
-  }, [boardId]);
+  }, [boardId, user?.id]);
 
   useEffect(() => {
     fetchColumnsAndCards();
@@ -234,6 +285,17 @@ export function BoardColumnsView({
     [columns, cardsByColumn, getColumnIdForCard]
   );
 
+  const filterCardsByLabel = useCallback(
+    (columnCards: Card[]) => {
+      if (!filterLabelId) return columnCards;
+      return columnCards.filter((card) => {
+        const labels = labelsByCard[card.id] ?? [];
+        return labels.some((l) => l.id === filterLabelId);
+      });
+    },
+    [filterLabelId, labelsByCard]
+  );
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
@@ -248,15 +310,48 @@ export function BoardColumnsView({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {userLabels.length > 0 && (
+          <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--board-line)] bg-[var(--board-header-bg)] px-6 py-3">
+            <span className="text-[12px] font-bold text-[var(--board-text-muted)]">Filter:</span>
+            <button
+              type="button"
+              onClick={() => setFilterLabelId(null)}
+              className={cn(
+                "rounded-full px-3 py-1 text-[12px] font-medium transition-colors",
+                !filterLabelId
+                  ? "bg-[var(--color-xanban-primary)] text-white"
+                  : "bg-[var(--board-bg)] text-[var(--board-text)] hover:bg-[var(--board-line)]"
+              )}
+            >
+              All
+            </button>
+            {userLabels.map((l) => (
+              <button
+                key={l.id}
+                type="button"
+                onClick={() => setFilterLabelId(filterLabelId === l.id ? null : l.id)}
+                className={cn(
+                  "rounded-full px-3 py-1 text-[12px] font-medium transition-opacity",
+                  filterLabelId === l.id ? "ring-2 ring-[var(--color-xanban-primary)] ring-offset-2" : "opacity-90 hover:opacity-100"
+                )}
+                style={{ backgroundColor: l.color ?? "var(--board-line)", color: l.color && ["#F2C94C", "#67E2AE", "#49C4E5", "#FF9F1A"].includes(l.color) ? "#000" : "#fff" }}
+              >
+                {l.name}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
         <div className="flex h-full min-w-min gap-6">
           {columns.map((col, index) => (
             <ColumnDropZone
               key={col.id}
               column={col}
               columnIndex={index}
-              cards={cardsByColumn[col.id] ?? []}
+              cards={filterCardsByLabel(cardsByColumn[col.id] ?? [])}
               subtasksByCard={subtasksByCard}
+              labelsByCard={labelsByCard}
               onCardClick={setViewCardId}
             />
           ))}
@@ -269,6 +364,7 @@ export function BoardColumnsView({
             <span className="text-[15px] font-bold leading-[1.26]">New Column</span>
           </button>
         </div>
+        </div>
       </div>
 
       <DragOverlay>
@@ -276,6 +372,7 @@ export function BoardColumnsView({
           <CardContent
             card={activeCard}
             subtaskCount={subtasksByCard[activeCard.id]}
+            labels={labelsByCard[activeCard.id]}
             className="cursor-grabbing shadow-lg opacity-95 w-[260px]"
           />
         ) : null}
@@ -289,12 +386,14 @@ function ColumnDropZone({
   columnIndex,
   cards,
   subtasksByCard,
+  labelsByCard,
   onCardClick,
 }: {
   column: Column;
   columnIndex: number;
   cards: Card[];
   subtasksByCard: Record<string, SubtaskCount>;
+  labelsByCard: Record<string, Label[]>;
   onCardClick: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
@@ -324,6 +423,7 @@ function ColumnDropZone({
             key={card.id}
             card={card}
             subtaskCount={subtasksByCard[card.id]}
+            labels={labelsByCard[card.id] ?? []}
             onOpen={onCardClick}
           />
         ))}

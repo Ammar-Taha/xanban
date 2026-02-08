@@ -1,5 +1,6 @@
 "use client";
 
+import { LabelPicker } from "@/components/board/label-picker";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -25,6 +26,7 @@ export function AddNewTaskModal({
   const [subtasks, setSubtasks] = useState<string[]>(["", ""]);
   const [statusId, setStatusId] = useState<string>("");
   const [columns, setColumns] = useState<ColumnOption[]>([]);
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
@@ -69,6 +71,7 @@ export function AddNewTaskModal({
     setTitle("");
     setDescription("");
     setSubtasks(["", ""]);
+    setSelectedLabelIds([]);
     setError(null);
     if (columns.length > 0) setStatusId(columns[0].id);
   }, [columns.length]);
@@ -143,6 +146,13 @@ export function AddNewTaskModal({
           if (subsError) setError(subsError.message || "Task created but subtasks failed.");
         }
 
+        if (selectedLabelIds.length > 0) {
+          const labelRows = selectedLabelIds.map((label_id) => ({ card_id: cardId, label_id }));
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+          const { error: labelErr } = (await supabase.from("card_labels").insert(labelRows as any)) as { error: { message: string } | null };
+          if (labelErr) setError(labelErr.message || "Task created but labels failed.");
+        }
+
         resetForm();
         handleClose();
         onTaskCreated?.();
@@ -150,7 +160,7 @@ export function AddNewTaskModal({
         setIsSubmitting(false);
       }
     },
-    [title, description, subtasks, statusId, resetForm, handleClose, onTaskCreated]
+    [title, description, subtasks, statusId, selectedLabelIds, resetForm, handleClose, onTaskCreated]
   );
 
   if (!open) return null;
@@ -261,6 +271,11 @@ export function AddNewTaskModal({
               </button>
             </div>
           </div>
+
+          <LabelPicker
+            selectedIds={selectedLabelIds}
+            onChange={setSelectedLabelIds}
+          />
 
           <div className="space-y-2">
             <label className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">
