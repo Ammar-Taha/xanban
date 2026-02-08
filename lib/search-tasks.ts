@@ -60,11 +60,13 @@ export async function searchTasks(
       .from("cards")
       .select("id, title, description, column_id")
       .in("column_id", columnIds)
+      .eq("is_archived", false)
       .ilike("title", pattern),
     supabase
       .from("cards")
       .select("id, title, description, column_id")
       .in("column_id", columnIds)
+      .eq("is_archived", false)
       .ilike("description", pattern),
   ]);
 

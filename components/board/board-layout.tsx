@@ -146,6 +146,12 @@ function BoardLayoutContent({
           setViewCardId(null);
           setDeleteTask({ cardId: id, title });
         }}
+        onArchive={async (id) => {
+          setViewCardId(null);
+          const supabase = createClient();
+          await (supabase.from("cards") as any).update({ is_archived: true }).eq("id", id);
+          onTaskCreated?.();
+        }}
         onTaskChanged={onTaskCreated}
       />
 

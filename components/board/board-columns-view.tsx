@@ -19,7 +19,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { GripVertical, Plus } from "lucide-react";
+import { Archive, GripVertical, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const COLUMN_DOT_FALLBACKS = ["#49C4E5", "#635FC7", "#67E2AE"];
@@ -141,7 +141,7 @@ export function BoardColumnsView({
   onAddColumn?: () => void;
 }) {
   const { user } = useAuth();
-  const { setViewCardId } = useTaskModals();
+  const { setViewCardId, setDeleteTask } = useTaskModals();
   const [columns, setColumns] = useState<Column[]>([]);
   const [cardsByColumn, setCardsByColumn] = useState<Record<string, Card[]>>({});
   const [subtasksByCard, setSubtasksByCard] = useState<Record<string, SubtaskCount>>({});
@@ -151,6 +151,11 @@ export function BoardColumnsView({
   const [sortBy, setSortBy] = useState<"position" | "due_date" | "priority">("position");
   const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archivedCards, setArchivedCards] = useState<{ id: string; title: string }[]>([]);
+  const [archivedCount, setArchivedCount] = useState(0);
+  const [archivedLoading, setArchivedLoading] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const fetchColumnsAndCards = useCallback(async () => {
     if (!boardId) return;
@@ -166,6 +171,7 @@ export function BoardColumnsView({
     if (columnList.length === 0) {
       setCardsByColumn({});
       setSubtasksByCard({});
+      setArchivedCount(0);
       setLoading(false);
       return;
     }
@@ -237,8 +243,60 @@ export function BoardColumnsView({
     } else {
       setUserLabels([]);
     }
+
+    const { count } = await supabase
+      .from("cards")
+      .select("*", { count: "exact", head: true })
+      .in("column_id", columnIds)
+      .eq("is_archived", true);
+    setArchivedCount(count ?? 0);
+
     setLoading(false);
   }, [boardId, user?.id]);
+
+  const fetchArchivedList = useCallback(async () => {
+    if (!boardId || columns.length === 0) return;
+    setArchivedLoading(true);
+    const supabase = createClient();
+    const columnIds = columns.map((c) => c.id);
+    const { data } = (await supabase
+      .from("cards")
+      .select("id, title")
+      .in("column_id", columnIds)
+      .eq("is_archived", true)
+      .order("title")) as { data: { id: string; title: string }[] | null };
+    setArchivedCards(data ?? []);
+    setArchivedLoading(false);
+  }, [boardId, columns]);
+
+  useEffect(() => {
+    if (showArchived && columns.length > 0) fetchArchivedList();
+  }, [showArchived, columns.length, fetchArchivedList]);
+
+  const handleRestore = useCallback(
+    async (cardId: string) => {
+      if (columns.length === 0) return;
+      setRestoringId(cardId);
+      const supabase = createClient();
+      const firstColumnId = columns[0].id;
+      const { data: maxPos } = (await supabase
+        .from("cards")
+        .select("position")
+        .eq("column_id", firstColumnId)
+        .eq("is_archived", false)
+        .order("position", { ascending: false })
+        .limit(1)
+        .maybeSingle()) as { data: { position: number } | null };
+      const nextPosition = maxPos?.position != null ? maxPos.position + 1 : 0;
+      await (supabase.from("cards") as any)
+        .update({ is_archived: false, column_id: firstColumnId, position: nextPosition })
+        .eq("id", cardId);
+      setRestoringId(null);
+      await fetchColumnsAndCards();
+      await fetchArchivedList();
+    },
+    [columns, fetchColumnsAndCards, fetchArchivedList]
+  );
 
   useEffect(() => {
     fetchColumnsAndCards();
@@ -386,6 +444,19 @@ export function BoardColumnsView({
     >
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex shrink-0 flex-wrap items-center gap-4 border-b border-[var(--board-line)] bg-[var(--board-header-bg)] px-6 py-3">
+          <button
+            type="button"
+            onClick={() => setShowArchived((v) => !v)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors",
+              showArchived
+                ? "bg-[var(--color-xanban-primary)] text-white"
+                : "bg-[var(--board-bg)] text-[var(--board-text-muted)] hover:bg-[var(--board-line)] hover:text-[var(--board-text)]"
+            )}
+          >
+            <Archive className="h-3.5 w-3.5" />
+            Archived {archivedCount > 0 ? `(${archivedCount})` : ""}
+          </button>
           <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold text-[var(--board-text-muted)]">Sort:</span>
             <select
@@ -430,6 +501,54 @@ export function BoardColumnsView({
           </>
         )}
         </div>
+        {showArchived && (
+          <div className="shrink-0 border-b border-[var(--board-line)] bg-[var(--board-bg)] px-6 py-4">
+            <h3 className="mb-3 text-[12px] font-bold uppercase tracking-wider text-[var(--board-text-muted)]">
+              Archived tasks
+            </h3>
+            {archivedLoading ? (
+              <div className="flex justify-center py-4">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-xanban-primary)] border-t-transparent" />
+              </div>
+            ) : archivedCards.length === 0 ? (
+              <p className="text-[13px] text-[var(--board-text-muted)]">No archived tasks.</p>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {archivedCards.map((c) => (
+                  <li
+                    key={c.id}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-3 py-2"
+                  >
+                    <span className="min-w-0 truncate text-[13px] font-medium text-[var(--board-text)]">
+                      {c.title}
+                    </span>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleRestore(c.id)}
+                        disabled={restoringId === c.id}
+                        className="rounded p-1.5 text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--color-xanban-primary)] disabled:opacity-50"
+                        aria-label={`Restore ${c.title}`}
+                        title="Restore"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTask({ cardId: c.id, title: c.title })}
+                        className="rounded p-1.5 text-[var(--board-text-muted)] hover:bg-[#EA5555]/10 hover:text-[#EA5555]"
+                        aria-label={`Delete ${c.title}`}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
         <div className="flex h-full min-w-min gap-6">
           {columns.map((col, index) => (

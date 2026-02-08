@@ -18,6 +18,7 @@ type ViewTaskModalProps = {
   boardId: string | null;
   onEdit: (cardId: string) => void;
   onDelete: (cardId: string, title: string) => void;
+  onArchive?: (cardId: string) => void;
   onTaskChanged?: () => void;
 };
 
@@ -28,6 +29,7 @@ export function ViewTaskModal({
   boardId,
   onEdit,
   onDelete,
+  onArchive,
   onTaskChanged,
 }: ViewTaskModalProps) {
   const [title, setTitle] = useState("");
@@ -148,6 +150,12 @@ export function ViewTaskModal({
     if (cardId && title) onDelete(cardId, title);
   }, [cardId, title, onClose, onDelete]);
 
+  const handleArchive = useCallback(() => {
+    setMenuOpen(false);
+    onClose();
+    if (cardId && onArchive) onArchive(cardId);
+  }, [cardId, onClose, onArchive]);
+
   if (!open) return null;
 
   const completedCount = subtasks.filter((s) => s.is_completed).length;
@@ -197,6 +205,15 @@ export function ViewTaskModal({
                       >
                         Edit Task
                       </button>
+                      {onArchive && (
+                        <button
+                          type="button"
+                          onClick={handleArchive}
+                          className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
+                        >
+                            Archive
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={handleDelete}
