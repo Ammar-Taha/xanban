@@ -54,13 +54,16 @@ export default function DashboardPage() {
     async (orderedIds: string[]) => {
       if (orderedIds.length === 0) return;
       const supabase = createClient();
-      await Promise.all(
-        orderedIds.map((id, position) =>
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
-          (supabase.from("boards") as any).update({ position }).eq("id", id)
-        )
-      );
-      fetchBoards();
+      try {
+        await Promise.all(
+          orderedIds.map((id, position) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+            (supabase.from("boards") as any).update({ position }).eq("id", id)
+          )
+        );
+      } finally {
+        fetchBoards();
+      }
     },
     [fetchBoards]
   );

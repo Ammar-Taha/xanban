@@ -22,6 +22,8 @@ import { useCallback, useState } from "react";
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
 
+const BOARD_DRAG_PREFIX = "board-drag-";
+
 function DraggableBoardRow({
   board,
   isSelected,
@@ -35,8 +37,8 @@ function DraggableBoardRow({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: board.id });
   const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
-    id: board.id,
-    data: { type: "board" },
+    id: `${BOARD_DRAG_PREFIX}${board.id}`,
+    data: { type: "board", boardId: board.id },
   });
 
   return (
@@ -105,7 +107,10 @@ export function Sidebar({
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (!over?.id || !onReorderBoards || boards.length < 2) return;
-      const draggedId = active.id as string;
+      const activeId = active.id as string;
+      const draggedId = activeId.startsWith(BOARD_DRAG_PREFIX)
+        ? activeId.slice(BOARD_DRAG_PREFIX.length)
+        : activeId;
       const overId = over.id as string;
       if (!boards.some((b) => b.id === draggedId) || !boards.some((b) => b.id === overId) || draggedId === overId)
         return;
