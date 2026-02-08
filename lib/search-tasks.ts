@@ -55,18 +55,21 @@ export async function searchTasks(
   const pattern = `%${q}%`;
   type CardRow = { id: string; title: string; description: string | null; column_id: string };
 
-  const [byTitle, byDesc] = await Promise.all([
-    (supabase
+  const [byTitleRes, byDescRes] = await Promise.all([
+    supabase
       .from("cards")
       .select("id, title, description, column_id")
       .in("column_id", columnIds)
-      .ilike("title", pattern)) as Promise<{ data: CardRow[] | null }>,
-    (supabase
+      .ilike("title", pattern),
+    supabase
       .from("cards")
       .select("id, title, description, column_id")
       .in("column_id", columnIds)
-      .ilike("description", pattern)) as Promise<{ data: CardRow[] | null }>,
+      .ilike("description", pattern),
   ]);
+
+  const byTitle = byTitleRes as { data: CardRow[] | null };
+  const byDesc = byDescRes as { data: CardRow[] | null };
 
   const seen = new Set<string>();
   const cardList: CardRow[] = [];
