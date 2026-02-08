@@ -6,7 +6,7 @@
 
 **A modern Kanban app for planning, prioritizing, and shipping work without clutter.**
 
-[Live Demo](https://xanban-lime.vercel.app) - [Introduction](#introduction) - [Features](#features) - [Getting Started](#getting-started) - [Project Structure](#project-structure) - [Tech Stack](#tech-stack) - [Keyboard Shortcuts](#keyboard-shortcuts)
+[Live Demo](https://xanban-lime.vercel.app) - [Introduction](#introduction) - [Features](#features) - [Getting Started](#getting-started) - [Mock Data Seeding](#mock-data-seeding) - [Project Structure](#project-structure) - [Tech Stack](#tech-stack) - [Keyboard Shortcuts](#keyboard-shortcuts)
 
 </div>
 
@@ -96,6 +96,58 @@ Open `http://localhost:3000`.
 pnpm build
 pnpm start
 ```
+
+---
+
+## Mock Data Seeding
+
+Use the included seed script to push `data.json` into your Supabase account for local testing.
+
+### 1. Prerequisites
+
+- Run `supabase/schema.sql` in Supabase SQL Editor first.
+- Ensure `.env.local` has:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Add seed auth credentials (same account you use in the app):
+
+```env
+SUPABASE_SEED_EMAIL=your_email@example.com
+SUPABASE_SEED_PASSWORD=your_password
+```
+
+### 2. Validate the seed payload
+
+```bash
+pnpm seed:data:dry-run
+```
+
+This checks/parses `data.json` and prints expected counts without writing to DB.
+
+### 3. Push mock data (append mode)
+
+```bash
+pnpm seed:data
+```
+
+This inserts boards/columns/cards/subtasks/labels for the authenticated seed user.
+
+### 4. Push mock data (reset mode)
+
+```bash
+pnpm seed:data:reset
+```
+
+Reset mode deletes existing `boards` and `labels` for the seed user first, then imports fresh data.
+
+### 5. Troubleshooting
+
+- `Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - Add those keys in `.env.local`.
+- `Missing SUPABASE_SEED_EMAIL or SUPABASE_SEED_PASSWORD`
+  - Add seed credentials in `.env.local`.
+- `Could not find column ... in schema cache`
+  - Run the latest `supabase/schema.sql` again in Supabase SQL Editor.
 
 ---
 
@@ -213,6 +265,9 @@ Default production URL in code/examples: `https://xanban-lime.vercel.app`.
 - `pnpm build` - Build production artifacts.
 - `pnpm start` - Start production server.
 - `pnpm lint` - Run lint checks.
+- `pnpm seed:data:dry-run` - Validate/parse `data.json` without DB writes.
+- `pnpm seed:data` - Seed mock data into Supabase for the configured seed user.
+- `pnpm seed:data:reset` - Clear that user's boards/labels, then reseed from `data.json`.
 
 ---
 
