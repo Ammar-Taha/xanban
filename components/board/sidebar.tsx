@@ -8,6 +8,7 @@ import type { BoardSummary } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
+  pointerWithin,
   PointerSensor,
   TouchSensor,
   useDraggable,
@@ -171,7 +172,11 @@ export function Sidebar({
               <p className="mt-12 px-8 text-[12px] font-bold uppercase leading-[1.26] tracking-[0.2em] text-[var(--board-text-muted)]">
                 All boards ({boardCount})
               </p>
-              <DndContext sensors={sensors} onDragEnd={handleBoardDragEnd}>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={pointerWithin}
+                onDragEnd={handleBoardDragEnd}
+              >
                 <div className="mt-4 flex flex-col gap-1 pr-8">
                   {boards.map((board) => (
                     <DraggableBoardRow
