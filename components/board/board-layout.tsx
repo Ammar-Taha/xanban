@@ -10,7 +10,9 @@ import { AddNewColumnModal } from "./add-new-column-modal";
 import { AddNewTaskModal } from "./add-new-task-modal";
 import { BoardHeader } from "./board-header";
 import { DashboardEmptyState } from "./dashboard-empty-state";
+import { DeleteBoardModal } from "./delete-board-modal";
 import { DeleteTaskModal } from "./delete-task-modal";
+import { EditBoardModal } from "./edit-board-modal";
 import { EditTaskModal } from "./edit-task-modal";
 import { Sidebar } from "./sidebar";
 import { ShowSidebarButton } from "./show-sidebar-button";
@@ -23,6 +25,8 @@ function BoardLayoutContent({
   selectedBoardId = null,
   selectedBoardName,
   onBoardCreated,
+  onBoardDeleted,
+  onBoardUpdated,
   onSelectBoard,
   onTaskCreated,
   onColumnAdded,
@@ -32,6 +36,8 @@ function BoardLayoutContent({
   selectedBoardId?: string | null;
   selectedBoardName?: string | null;
   onBoardCreated?: (boardId: string) => void;
+  onBoardDeleted?: () => void;
+  onBoardUpdated?: () => void;
   onSelectBoard?: (id: string) => void;
   onTaskCreated?: () => void;
   onColumnAdded?: () => void;
@@ -44,6 +50,10 @@ function BoardLayoutContent({
     setAddTaskModalOpen,
     addColumnModalOpen,
     setAddColumnModalOpen,
+    editBoardModalOpen,
+    setEditBoardModalOpen,
+    deleteBoardModalOpen,
+    setDeleteBoardModalOpen,
   } = useBoardUIStore();
   const {
     viewCardId,
@@ -54,6 +64,7 @@ function BoardLayoutContent({
     setDeleteTask,
   } = useTaskModals();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingBoard, setIsDeletingBoard] = useState(false);
 
   const hasBoards = boards.length > 0;
 
@@ -72,6 +83,17 @@ function BoardLayoutContent({
     setIsDeleting(false);
     onTaskCreated?.();
   }, [deleteTask, setDeleteTask, onTaskCreated]);
+
+  const handleDeleteBoardConfirm = useCallback(async () => {
+    if (!selectedBoardId) return;
+    setIsDeletingBoard(true);
+    const supabase = createClient();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase infers never
+    await (supabase.from("boards") as any).delete().eq("id", selectedBoardId);
+    setDeleteBoardModalOpen(false);
+    setIsDeletingBoard(false);
+    onBoardDeleted?.();
+  }, [selectedBoardId, setDeleteBoardModalOpen, onBoardDeleted]);
 
   return (
     <div className="flex min-h-screen bg-[var(--board-bg)]">
@@ -137,6 +159,25 @@ function BoardLayoutContent({
         isDeleting={isDeleting}
       />
 
+      <EditBoardModal
+        open={editBoardModalOpen}
+        onClose={() => setEditBoardModalOpen(false)}
+        boardId={selectedBoardId ?? null}
+        onSaved={() => {
+          setEditBoardModalOpen(false);
+          onBoardUpdated?.();
+          onTaskCreated?.();
+        }}
+      />
+
+      <DeleteBoardModal
+        open={deleteBoardModalOpen}
+        onClose={() => setDeleteBoardModalOpen(false)}
+        boardName={selectedBoardName ?? "this board"}
+        onConfirm={handleDeleteBoardConfirm}
+        isDeleting={isDeletingBoard}
+      />
+
       {/* Main: header + content — starts after sidebar on desktop */}
       <main
         className={cn(
@@ -147,6 +188,8 @@ function BoardLayoutContent({
         <BoardHeader
           boardName={selectedBoardName}
           onAddTask={() => setAddTaskModalOpen(true)}
+          onEditBoard={() => setEditBoardModalOpen(true)}
+          onDeleteBoard={() => setDeleteBoardModalOpen(true)}
           disableAddTask={!selectedBoardId}
         />
         {mainContent}

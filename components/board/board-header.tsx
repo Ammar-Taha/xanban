@@ -10,11 +10,15 @@ const PLACEHOLDER_BOARD_NAME = "Untitled board";
 export function BoardHeader({
   boardName,
   onAddTask,
+  onEditBoard,
+  onDeleteBoard,
   onOpenSettings,
   disableAddTask,
 }: {
   boardName?: string | null;
   onAddTask?: () => void;
+  onEditBoard?: () => void;
+  onDeleteBoard?: () => void;
   onOpenSettings?: () => void;
   disableAddTask?: boolean;
 }) {
@@ -72,10 +76,7 @@ export function BoardHeader({
         <div className="relative">
           <button
             type="button"
-            onClick={() => {
-              setMenuOpen((o) => !o);
-              onOpenSettings?.();
-            }}
+            onClick={() => setMenuOpen((o) => !o)}
             className="flex h-10 w-10 items-center justify-center rounded text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
             aria-label="Board options"
           >
@@ -91,12 +92,20 @@ export function BoardHeader({
               <div className="absolute right-0 top-full z-20 mt-1 min-w-[180px] rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] py-2 shadow-lg">
                 <button
                   type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEditBoard?.();
+                  }}
                   className="w-full px-4 py-2 text-left text-[13px] font-medium text-[var(--board-text)] hover:bg-[var(--board-bg)]"
                 >
                   Edit Board
                 </button>
                 <button
                   type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDeleteBoard?.();
+                  }}
                   className="w-full px-4 py-2 text-left text-[13px] font-medium text-[#EA5555] hover:bg-[#EA5555]/10"
                 >
                   Delete Board

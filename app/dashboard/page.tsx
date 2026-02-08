@@ -61,6 +61,16 @@ export default function DashboardPage() {
     [setSelectedBoardId, fetchBoards]
   );
 
+  const handleBoardDeleted = useCallback(() => {
+    fetchBoards();
+    setBoardRefreshKey((k) => k + 1);
+  }, [fetchBoards]);
+
+  const handleBoardUpdated = useCallback(() => {
+    fetchBoards();
+    setBoardRefreshKey((k) => k + 1);
+  }, [fetchBoards]);
+
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
   const selectedBoardName = selectedBoard?.name ?? null;
 
@@ -86,6 +96,8 @@ export default function DashboardPage() {
       selectedBoardId={selectedBoardId}
       selectedBoardName={selectedBoardName}
       onBoardCreated={handleBoardCreated}
+      onBoardDeleted={handleBoardDeleted}
+      onBoardUpdated={handleBoardUpdated}
       onSelectBoard={setSelectedBoardId}
       onTaskCreated={handleTaskCreated}
       onColumnAdded={handleTaskCreated}
