@@ -76,16 +76,20 @@ export function AddNewBoardModal({
       const supabase = createClient();
 
       try {
-        const { data: maxPos } = (await supabase
+        let nextPosition = 0;
+        const maxPosResult = (await supabase
           .from("boards")
           .select("position")
           .eq("user_id", user.id)
           .order("position", { ascending: false })
           .limit(1)
-          .maybeSingle()) as { data: { position: number } | null };
-        const nextPosition = maxPos?.position != null ? maxPos.position + 1 : 0;
+          .maybeSingle()) as { data: { position: number } | null; error: { message: string } | null };
+        if (!maxPosResult.error && maxPosResult.data?.position != null) {
+          nextPosition = maxPosResult.data.position + 1;
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client generic inference fails with our Database type
-        const { data: boardData, error: boardError } = (await supabase
+        let boardResult = (await supabase
           .from("boards")
           .insert({ user_id: user.id, name, position: nextPosition } as any)
           .select("id")
@@ -94,11 +98,22 @@ export function AddNewBoardModal({
           error: { message: string } | null;
         };
 
-        if (boardError) {
-          setError(boardError.message || "Failed to create board.");
+        if (boardResult.error && /position|schema/i.test(boardResult.error.message || "")) {
+          boardResult = (await supabase
+            .from("boards")
+            .insert({ user_id: user.id, name } as any)
+            .select("id")
+            .single()) as {
+            data: { id: string } | null;
+            error: { message: string } | null;
+          };
+        }
+
+        if (boardResult.error) {
+          setError(boardResult.error.message || "Failed to create board.");
           return;
         }
-        const boardId = boardData?.id;
+        const boardId = boardResult.data?.id;
         if (!boardId) {
           setError("Failed to create board.");
           return;
