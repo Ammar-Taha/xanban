@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Code - Xanban</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif; background-color: #f4f7fd;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f7fd;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                    <tr>
+                        <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #635fc7 0%, #5a52b8 100%);">
+                            <h1 style="margin: 0; font-size: 28px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">Xanban</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px 40px 30px;">
+                            <h2 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: #000112; line-height: 1.3;">Confirm it's you 🔐</h2>
+                            <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #525866;">
+                                For your security, we need to verify your identity before proceeding with this action.
+                            </p>
+                            <div style="margin: 30px 0; padding: 24px; background-color: #f4f7fd; border-radius: 12px; text-align: center;">
+                                <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #525866; text-transform: uppercase; letter-spacing: 1px;">Your verification code</p>
+                                <p style="margin: 0; font-size: 36px; font-weight: 700; color: #000112; letter-spacing: 8px; font-family: 'Courier New', monospace;">{{ .Token }}</p>
+                            </div>
+                            <p style="margin: 24px 0 0; font-size: 14px; line-height: 1.6; color: #828fa3; text-align: center;">
+                                This code expires in 5 minutes.
+                            </p>
+                            <div style="margin: 30px 0 0; padding: 16px; background-color: #eae9ff; border-left: 4px solid #635fc7; border-radius: 4px;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #3e3a8c;">
+                                    <strong>Tip:</strong> Never share this code. Xanban staff will never ask for your verification code.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="height: 1px; background-color: #e4ebfa;"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px 40px 40px;">
+                            <p style="margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: #828fa3;">
+                                If you didn't request this code, ignore this email and ensure your account is secure.
+                            </p>
+                            <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #828fa3;">
+                                Need help? Visit <a href="{{ .SiteURL }}" style="color: #635fc7; text-decoration: none;">{{ .SiteURL }}</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <p style="margin: 20px 0 0; font-size: 12px; color: #828fa3; text-align: center;">
+                    © 2026 Xanban. All rights reserved.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -32,7 +32,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/** Production app URL; must match redirect URL in Supabase and app/auth/callback/route.ts */
+/** Production app URL; must match Supabase Site URL and Redirect URLs allowlist (see supabase/email-templates/README.md). */
 const PRODUCTION_ORIGIN = "https://xanban-lime.vercel.app";
 
 function getAppOrigin(): string {
@@ -42,6 +42,7 @@ function getAppOrigin(): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? PRODUCTION_ORIGIN;
 }
 
+/** Used as emailRedirectTo / redirectTo so {{ .ConfirmationURL }} in auth emails lands here; must be in Supabase Redirect URLs. */
 function getAuthCallbackUrl(): string {
   return `${getAppOrigin()}/auth/callback`;
 }
@@ -176,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${getAppOrigin()}/reset-password`,
+      redirectTo: `${getAppOrigin()}/reset-password`, // Must be in Supabase Redirect URLs so {{ .ConfirmationURL }} works
     });
     return { error };
   };
