@@ -3,7 +3,7 @@
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
 import { ChevronDown, LayoutDashboard, MoreVertical, Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const PLACEHOLDER_BOARD_NAME = "Untitled board";
 
@@ -16,6 +16,7 @@ export function BoardHeader({
   onOpenSettings,
   disableAddTask,
   showBoardMenu = true,
+  openBoardMenuTrigger,
 }: {
   boardName?: string | null;
   onAddTask?: () => void;
@@ -26,9 +27,17 @@ export function BoardHeader({
   disableAddTask?: boolean;
   /** When false (e.g. no board selected after delete), the three-dots Edit/Delete menu is hidden. */
   showBoardMenu?: boolean;
+  /** Increment to open the board menu (e.g. from command palette). */
+  openBoardMenuTrigger?: number;
 }) {
   const { sidebarOpen, setSidebarOpen, setSearchOpen } = useBoardUIStore();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof openBoardMenuTrigger === "number" && openBoardMenuTrigger > 0) {
+      setMenuOpen(true);
+    }
+  }, [openBoardMenuTrigger]);
   const displayName = boardName?.trim() || PLACEHOLDER_BOARD_NAME;
   const isPlaceholder = !boardName?.trim();
 

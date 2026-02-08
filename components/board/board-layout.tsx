@@ -4,7 +4,7 @@ import type { BoardSummary } from "@/lib/board-ui-store";
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AddNewBoardModal } from "./add-new-board-modal";
 import { AddNewColumnModal } from "./add-new-column-modal";
 import { AddNewTaskModal } from "./add-new-task-modal";
@@ -14,6 +14,7 @@ import { DeleteBoardModal } from "./delete-board-modal";
 import { DeleteTaskModal } from "./delete-task-modal";
 import { EditBoardModal } from "./edit-board-modal";
 import { EditTaskModal } from "./edit-task-modal";
+import { CommandPalette } from "./command-palette";
 import { ManageLabelsModal } from "./manage-labels-modal";
 import { SearchTasksModal } from "./search-tasks-modal";
 import { Sidebar } from "./sidebar";
@@ -73,8 +74,32 @@ function BoardLayoutContent({
   } = useTaskModals();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeletingBoard, setIsDeletingBoard] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const [boardMenuOpenTrigger, setBoardMenuOpenTrigger] = useState(0);
 
   const hasBoards = boards.length > 0;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+      if (mod && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((open) => !open);
+        return;
+      }
+      if (e.key === "n" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const el = document.activeElement;
+        const isInput = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el as HTMLElement).isContentEditable);
+        if (isInput) return;
+        if (addTaskModalOpen || searchOpen || editBoardModalOpen || deleteBoardModalOpen || manageLabelsModalOpen || addBoardModalOpen || viewCardId || editCardId || deleteTask) return;
+        e.preventDefault();
+        setAddTaskModalOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [addTaskModalOpen, searchOpen, editBoardModalOpen, deleteBoardModalOpen, manageLabelsModalOpen, addBoardModalOpen, viewCardId, editCardId, deleteTask, setAddTaskModalOpen]);
 
   const mainContent = !hasBoards ? (
     <DashboardEmptyState onCreateBoard={() => setAddBoardModalOpen(true)} />
@@ -102,6 +127,43 @@ function BoardLayoutContent({
     setIsDeletingBoard(false);
     onBoardDeleted?.();
   }, [selectedBoardId, setDeleteBoardModalOpen, onBoardDeleted]);
+
+  const commandPaletteCommands = useMemo(
+    () => [
+      {
+        id: "add-task",
+        label: "Add new task",
+        shortcut: "N",
+        onSelect: () => setAddTaskModalOpen(true),
+      },
+      {
+        id: "search",
+        label: "Search tasks",
+        shortcut: "⌘K",
+        onSelect: () => setSearchOpen(true),
+      },
+      ...(selectedBoardId
+        ? [
+            {
+              id: "board-options",
+              label: "Board options",
+              onSelect: () => setBoardMenuOpenTrigger((t) => t + 1),
+            },
+          ]
+        : []),
+      {
+        id: "new-board",
+        label: "Create new board",
+        onSelect: () => setAddBoardModalOpen(true),
+      },
+    ],
+    [
+      selectedBoardId,
+      setAddTaskModalOpen,
+      setSearchOpen,
+      setAddBoardModalOpen,
+    ]
+  );
 
   return (
     <div className="flex min-h-screen bg-[var(--board-bg)]">
@@ -207,6 +269,12 @@ function BoardLayoutContent({
         onOpenTask={setViewCardId}
       />
 
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        commands={commandPaletteCommands}
+      />
+
       {/* Main: header + content — starts after sidebar on desktop */}
       <main
         className={cn(
@@ -222,6 +290,7 @@ function BoardLayoutContent({
           onManageLabels={() => setManageLabelsModalOpen(true)}
           disableAddTask={!selectedBoardId}
           showBoardMenu={!!selectedBoardId}
+          openBoardMenuTrigger={boardMenuOpenTrigger}
         />
         {mainContent}
       </main>
