@@ -7,8 +7,8 @@ import { useBoardUIStore } from "@/lib/board-ui-store";
 import type { BoardSummary } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
 import {
+  closestCenter,
   DndContext,
-  pointerWithin,
   PointerSensor,
   TouchSensor,
   useDraggable,
@@ -23,8 +23,6 @@ import { useCallback, useState } from "react";
 const SIDEBAR_WIDTH = 300;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
 
-const BOARD_DRAG_PREFIX = "board-drag-";
-
 function DraggableBoardRow({
   board,
   isSelected,
@@ -38,7 +36,7 @@ function DraggableBoardRow({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: board.id });
   const { attributes, listeners, setNodeRef: setDragRef, isDragging } = useDraggable({
-    id: `${BOARD_DRAG_PREFIX}${board.id}`,
+    id: board.id,
     data: { type: "board", boardId: board.id },
   });
 
@@ -108,10 +106,7 @@ export function Sidebar({
     (event: DragEndEvent) => {
       const { active, over } = event;
       if (!over?.id || !onReorderBoards || boards.length < 2) return;
-      const activeId = active.id as string;
-      const draggedId = activeId.startsWith(BOARD_DRAG_PREFIX)
-        ? activeId.slice(BOARD_DRAG_PREFIX.length)
-        : activeId;
+      const draggedId = active.id as string;
       const overId = over.id as string;
       if (!boards.some((b) => b.id === draggedId) || !boards.some((b) => b.id === overId) || draggedId === overId)
         return;
@@ -174,7 +169,7 @@ export function Sidebar({
               </p>
               <DndContext
                 sensors={sensors}
-                collisionDetection={pointerWithin}
+                collisionDetection={closestCenter}
                 onDragEnd={handleBoardDragEnd}
               >
                 <div className="mt-4 flex flex-col gap-1 pr-8">

@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const fetchBoards = useCallback(async () => {
     if (!user?.id) return;
     const supabase = createClient();
-    // Prefer position order (after migration); fallback to created_at if position column doesn't exist yet
+    // Prefer position order (after migration); fallback to updated_at/created_at for legacy schemas.
     const { data, error } = await supabase
       .from("boards")
       .select("id, name")
@@ -43,6 +43,7 @@ export default function DashboardPage() {
         .from("boards")
         .select("id, name")
         .eq("user_id", user.id)
+        .order("updated_at", { ascending: true })
         .order("created_at", { ascending: true });
       setBoards((fallback.data as BoardSummary[]) ?? []);
       return;
@@ -52,20 +53,58 @@ export default function DashboardPage() {
 
   const handleReorderBoards = useCallback(
     async (orderedIds: string[]) => {
-      if (orderedIds.length === 0) return;
+      if (!user?.id || orderedIds.length === 0) return;
+      const nextBoards = orderedIds
+        .map((id) => boards.find((b) => b.id === id))
+        .filter((b): b is BoardSummary => !!b);
+      const previousBoards = boards;
+      if (nextBoards.length === boards.length) {
+        setBoards(nextBoards);
+      }
+
       const supabase = createClient();
       try {
-        await Promise.all(
+        const responses = await Promise.all(
           orderedIds.map((id, position) =>
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
-            (supabase.from("boards") as any).update({ position }).eq("id", id)
+            (supabase.from("boards") as any)
+              .update({ position })
+              .eq("id", id)
+              .eq("user_id", user.id)
           )
         );
+        const firstError = responses.find((res) => res?.error)?.error;
+        if (firstError) {
+          const message = `${firstError.message ?? ""}`.toLowerCase();
+          if (message.includes("position")) {
+            // Legacy fallback when boards.position doesn't exist yet:
+            // persist visual order through updated_at so fetch fallback keeps the reordered list.
+            const baseTime = Date.now();
+            const legacyResponses = await Promise.all(
+              orderedIds.map((id, index) =>
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase types incomplete
+                (supabase.from("boards") as any)
+                  .update({ updated_at: new Date(baseTime + index).toISOString() })
+                  .eq("id", id)
+                  .eq("user_id", user.id)
+              )
+            );
+            const legacyError = legacyResponses.find((res) => res?.error)?.error;
+            if (!legacyError) {
+              return;
+            }
+            throw legacyError;
+          }
+          throw firstError;
+        }
+      } catch (error) {
+        console.error("Failed to reorder boards", error);
+        setBoards(previousBoards);
       } finally {
         fetchBoards();
       }
     },
-    [fetchBoards]
+    [boards, fetchBoards, user?.id]
   );
 
   useEffect(() => {
