@@ -1,6 +1,7 @@
 "use client";
 
 import { LabelChip } from "@/components/board/label-chip";
+import { formatDueDate, isOverdue, PRIORITY_STYLES, type CardPriority } from "@/lib/card-meta";
 import { useTaskModals } from "@/components/board/task-modals-context";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
@@ -38,6 +39,8 @@ type Card = {
   column_id: string;
   title: string;
   position: number;
+  due_date?: string | null;
+  priority?: string | null;
 };
 
 type SubtaskCount = { total: number; completed: number };
@@ -53,6 +56,10 @@ function CardContent({
   labels?: Label[];
   className?: string;
 }) {
+  const due = card.due_date ?? null;
+  const priority = (card.priority as CardPriority) ?? "none";
+  const overdue = due ? isOverdue(due) : false;
+
   return (
     <div className={cn("rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 shadow-sm", className)}>
       {labels && labels.length > 0 && (
@@ -65,11 +72,29 @@ function CardContent({
       <p className="text-[15px] font-medium leading-[1.26] text-[var(--board-text)]">
         {card.title}
       </p>
-      {subtaskCount && subtaskCount.total > 0 && (
-        <p className="mt-2 text-[12px] font-medium text-[var(--board-text-muted)]">
-          {subtaskCount.completed} of {subtaskCount.total} substasks
-        </p>
-      )}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {due && (
+          <span
+            className={cn(
+              "text-[11px] font-medium",
+              overdue ? "text-[#EA5555]" : "text-[var(--board-text-muted)]"
+            )}
+          >
+            {formatDueDate(due)}
+            {overdue && " (overdue)"}
+          </span>
+        )}
+        {priority !== "none" && (
+          <span className={cn("text-[11px] font-medium capitalize", PRIORITY_STYLES[priority])}>
+            {priority}
+          </span>
+        )}
+        {subtaskCount && subtaskCount.total > 0 && (
+          <span className="text-[12px] font-medium text-[var(--board-text-muted)]">
+            {subtaskCount.completed}/{subtaskCount.total} subtasks
+          </span>
+        )}
+      </div>
     </div>
   );
 }
@@ -126,6 +151,7 @@ export function BoardColumnsView({
   const [labelsByCard, setLabelsByCard] = useState<Record<string, Label[]>>({});
   const [userLabels, setUserLabels] = useState<Label[]>([]);
   const [filterLabelId, setFilterLabelId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"position" | "due_date" | "priority">("position");
   const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
 
@@ -150,7 +176,7 @@ export function BoardColumnsView({
     const columnIds = columnList.map((c) => c.id);
     const { data: cardsData } = await supabase
       .from("cards")
-      .select("id, column_id, title, position")
+      .select("id, column_id, title, position, due_date, priority")
       .in("column_id", columnIds)
       .eq("is_archived", false)
       .order("position", { ascending: true });
@@ -296,6 +322,32 @@ export function BoardColumnsView({
     [filterLabelId, labelsByCard]
   );
 
+  const sortCards = useCallback(
+    (columnCards: Card[]) => {
+      if (sortBy === "position") return columnCards;
+      const copy = [...columnCards];
+      if (sortBy === "due_date") {
+        copy.sort((a, b) => {
+          const ad = a.due_date ?? "";
+          const bd = b.due_date ?? "";
+          if (!ad && !bd) return 0;
+          if (!ad) return 1;
+          if (!bd) return -1;
+          return ad.localeCompare(bd);
+        });
+      } else {
+        const order: Record<string, number> = { high: 0, medium: 1, low: 2, none: 3 };
+        copy.sort((a, b) => {
+          const ap = order[(a.priority as string) ?? "none"] ?? 3;
+          const bp = order[(b.priority as string) ?? "none"] ?? 3;
+          return ap - bp;
+        });
+      }
+      return copy;
+    },
+    [sortBy]
+  );
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
@@ -311,8 +363,21 @@ export function BoardColumnsView({
       onDragEnd={handleDragEnd}
     >
       <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex shrink-0 flex-wrap items-center gap-4 border-b border-[var(--board-line)] bg-[var(--board-header-bg)] px-6 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-[var(--board-text-muted)]">Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "position" | "due_date" | "priority")}
+              className="rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-2 py-1.5 text-[12px] font-medium text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none"
+            >
+              <option value="position">Default</option>
+              <option value="due_date">Due date</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
         {userLabels.length > 0 && (
-          <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[var(--board-line)] bg-[var(--board-header-bg)] px-6 py-3">
+          <>
             <span className="text-[12px] font-bold text-[var(--board-text-muted)]">Filter:</span>
             <button
               type="button"
@@ -340,8 +405,9 @@ export function BoardColumnsView({
                 {l.name}
               </button>
             ))}
-          </div>
+          </>
         )}
+        </div>
         <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
         <div className="flex h-full min-w-min gap-6">
           {columns.map((col, index) => (
@@ -349,7 +415,7 @@ export function BoardColumnsView({
               key={col.id}
               column={col}
               columnIndex={index}
-              cards={filterCardsByLabel(cardsByColumn[col.id] ?? [])}
+              cards={sortCards(filterCardsByLabel(cardsByColumn[col.id] ?? []))}
               subtasksByCard={subtasksByCard}
               labelsByCard={labelsByCard}
               onCardClick={setViewCardId}

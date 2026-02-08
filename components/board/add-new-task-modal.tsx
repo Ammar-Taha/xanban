@@ -1,6 +1,7 @@
 "use client";
 
 import { LabelPicker } from "@/components/board/label-picker";
+import { CARD_PRIORITIES, type CardPriority } from "@/lib/card-meta";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -27,6 +28,8 @@ export function AddNewTaskModal({
   const [statusId, setStatusId] = useState<string>("");
   const [columns, setColumns] = useState<ColumnOption[]>([]);
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState<CardPriority>("none");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusOpen, setStatusOpen] = useState(false);
@@ -72,6 +75,8 @@ export function AddNewTaskModal({
     setDescription("");
     setSubtasks(["", ""]);
     setSelectedLabelIds([]);
+    setDueDate("");
+    setPriority("none");
     setError(null);
     if (columns.length > 0) setStatusId(columns[0].id);
   }, [columns.length]);
@@ -117,6 +122,8 @@ export function AddNewTaskModal({
             column_id: statusId,
             title: trimmedTitle,
             description: description.trim() || "",
+            due_date: dueDate.trim() || null,
+            priority: priority || "none",
             position: nextPosition,
           } as any)
           .select("id")
@@ -160,7 +167,7 @@ export function AddNewTaskModal({
         setIsSubmitting(false);
       }
     },
-    [title, description, subtasks, statusId, selectedLabelIds, resetForm, handleClose, onTaskCreated]
+    [title, description, subtasks, statusId, selectedLabelIds, dueDate, priority, resetForm, handleClose, onTaskCreated]
   );
 
   if (!open) return null;
@@ -276,6 +283,36 @@ export function AddNewTaskModal({
             selectedIds={selectedLabelIds}
             onChange={setSelectedLabelIds}
           />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="task-due-date" className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">
+                Due date
+              </label>
+              <input
+                id="task-due-date"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="h-10 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="task-priority" className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">
+                Priority
+              </label>
+              <select
+                id="task-priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as CardPriority)}
+                className="h-10 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              >
+                {CARD_PRIORITIES.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           <div className="space-y-2">
             <label className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">

@@ -1,10 +1,11 @@
 "use client";
 
 import { LabelChip } from "@/components/board/label-chip";
+import { formatDueDate, isOverdue, PRIORITY_STYLES, type CardPriority } from "@/lib/card-meta";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Label } from "@/lib/labels";
-import { ChevronDown, MoreVertical, X } from "lucide-react";
+import { Calendar, ChevronDown, MoreVertical, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 type ColumnOption = { id: string; name: string; position: number };
@@ -35,6 +36,8 @@ export function ViewTaskModal({
   const [columnId, setColumnId] = useState("");
   const [columns, setColumns] = useState<ColumnOption[]>([]);
   const [labels, setLabels] = useState<Label[]>([]);
+  const [dueDate, setDueDate] = useState<string | null>(null);
+  const [priority, setPriority] = useState<CardPriority>("none");
   const [statusOpen, setStatusOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -45,9 +48,9 @@ export function ViewTaskModal({
     const supabase = createClient();
     const { data: card } = (await supabase
       .from("cards")
-      .select("id, title, description, column_id")
+      .select("id, title, description, column_id, due_date, priority")
       .eq("id", cardId)
-      .single()) as { data: { title: string; description: string | null; column_id: string } | null };
+      .single()) as { data: { title: string; description: string | null; column_id: string; due_date: string | null; priority: string | null } | null };
     if (!card) {
       setLoading(false);
       return;
@@ -55,6 +58,8 @@ export function ViewTaskModal({
     setTitle(card.title);
     setDescription(card.description ?? "");
     setColumnId(card.column_id);
+    setDueDate(card.due_date ?? null);
+    setPriority((card.priority as CardPriority) ?? "none");
     const { data: subs } = (await supabase
       .from("subtasks")
       .select("id, title, is_completed, position")
@@ -225,6 +230,30 @@ export function ViewTaskModal({
                 {labels.map((l) => (
                   <LabelChip key={l.id} name={l.name} color={l.color} small />
                 ))}
+              </div>
+            )}
+
+            {(dueDate || priority !== "none") && (
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                {dueDate && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-[var(--board-text-muted)]" />
+                    <span
+                      className={cn(
+                        "text-[13px] font-medium",
+                        isOverdue(dueDate) ? "text-[#EA5555]" : "text-[var(--board-text-muted)]"
+                      )}
+                    >
+                      Due {formatDueDate(dueDate)}
+                      {isOverdue(dueDate) && " (overdue)"}
+                    </span>
+                  </div>
+                )}
+                {priority !== "none" && (
+                  <span className={cn("text-[13px] font-medium capitalize", PRIORITY_STYLES[priority])}>
+                    {priority} priority
+                  </span>
+                )}
               </div>
             )}
 

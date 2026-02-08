@@ -1,6 +1,7 @@
 "use client";
 
 import { LabelPicker } from "@/components/board/label-picker";
+import { CARD_PRIORITIES, type CardPriority } from "@/lib/card-meta";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { ChevronDown, X } from "lucide-react";
@@ -28,6 +29,8 @@ export function EditTaskModal({
   const [subtasks, setSubtasks] = useState<{ id: string | null; title: string }[]>([{ id: null, title: "" }]);
   const [statusId, setStatusId] = useState("");
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
+  const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState<CardPriority>("none");
   const [columns, setColumns] = useState<ColumnOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,9 +55,9 @@ export function EditTaskModal({
     const supabase = createClient();
     const { data: card } = (await supabase
       .from("cards")
-      .select("id, title, description, column_id")
+      .select("id, title, description, column_id, due_date, priority")
       .eq("id", cardId)
-      .single()) as { data: { title: string; description: string | null; column_id: string } | null };
+      .single()) as { data: { title: string; description: string | null; column_id: string; due_date: string | null; priority: string | null } | null };
     if (!card) {
       setLoading(false);
       return;
@@ -63,6 +66,8 @@ export function EditTaskModal({
     setDescription(card.description ?? "");
     setStatusId(card.column_id);
     setInitialColumnId(card.column_id);
+    setDueDate(card.due_date ?? "");
+    setPriority((card.priority as CardPriority) ?? "none");
     const { data: subs } = (await supabase
       .from("subtasks")
       .select("id, title")
@@ -143,6 +148,8 @@ export function EditTaskModal({
           title: trimmedTitle,
           description: description.trim() || "",
           column_id: statusId,
+          due_date: dueDate.trim() || null,
+          priority: priority || "none",
         };
         if (nextPosition !== undefined) updatePayload.position = nextPosition;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client infers never
@@ -176,7 +183,7 @@ export function EditTaskModal({
         setIsSubmitting(false);
       }
     },
-    [title, description, subtasks, statusId, selectedLabelIds, initialColumnId, cardId, handleClose, onSaved]
+    [title, description, subtasks, statusId, selectedLabelIds, dueDate, priority, initialColumnId, cardId, handleClose, onSaved]
   );
 
   if (!open) return null;
@@ -275,6 +282,31 @@ export function EditTaskModal({
               selectedIds={selectedLabelIds}
               onChange={setSelectedLabelIds}
             />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="edit-task-due-date" className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">Due date</label>
+                <input
+                  id="edit-task-due-date"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="h-10 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="edit-task-priority" className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">Priority</label>
+                <select
+                  id="edit-task-priority"
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value as CardPriority)}
+                  className="h-10 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] font-medium leading-[1.77] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+                >
+                  {CARD_PRIORITIES.map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <div className="space-y-2">
               <label className="block text-[12px] font-bold leading-[1.26] text-[var(--board-text-muted)]">Status</label>
               <div className="relative">
