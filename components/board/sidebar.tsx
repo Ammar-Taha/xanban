@@ -17,7 +17,7 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { EyeOff, GripVertical, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
+import { EyeOff, GripVertical, Keyboard, LayoutDashboard, LogOut, Moon, Plus, Sun, User } from "lucide-react";
 import { useCallback, useState } from "react";
 
 const SIDEBAR_WIDTH = 300;
@@ -92,7 +92,7 @@ export function Sidebar({
   className?: string;
 }) {
   const { theme, toggleTheme } = useTheme();
-  const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen } = useBoardUIStore();
+  const { sidebarOpen, setSidebarOpen, setAddBoardModalOpen, setCommandPaletteOpen } = useBoardUIStore();
   const boardCount = boards.length;
   const { user, signOut } = useAuth();
   const [userExpanded, setUserExpanded] = useState(false);
@@ -219,6 +219,22 @@ export function Sidebar({
 
           {/* Spacer */}
           <div className="min-h-[1rem] flex-1" />
+
+          {/* Command palette hint — only when sidebar expanded */}
+          {sidebarOpen && (
+            <button
+              type="button"
+              onClick={() => setCommandPaletteOpen(true)}
+              className="mx-6 mb-2 flex w-[calc(100%-3rem)] items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--board-line)] bg-transparent py-2 text-[12px] font-medium text-[var(--board-text-muted)] transition-colors hover:border-[var(--color-xanban-primary)] hover:bg-[var(--board-bg)] hover:text-[var(--color-xanban-primary)]"
+              title="Open command palette (⌘K or Ctrl+K)"
+            >
+              <Keyboard className="h-4 w-4 shrink-0" />
+              <span>Commands</span>
+              <kbd className="rounded border border-[var(--board-line)] bg-[var(--board-bg)] px-1.5 py-0.5 font-mono text-[10px]">
+                ⌘K
+              </kbd>
+            </button>
+          )}
 
           {/* User block: collapsible; collapsed = icon + display name; expanded = header + email + sign out above */}
           {user && (

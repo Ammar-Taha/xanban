@@ -49,6 +49,7 @@ function BoardLayoutContent({
 }) {
   const {
     sidebarOpen,
+    setSidebarOpen,
     addBoardModalOpen,
     setAddBoardModalOpen,
     addTaskModalOpen,
@@ -63,6 +64,8 @@ function BoardLayoutContent({
     setManageLabelsModalOpen,
     searchOpen,
     setSearchOpen,
+    commandPaletteOpen,
+    setCommandPaletteOpen,
   } = useBoardUIStore();
   const {
     viewCardId,
@@ -74,7 +77,6 @@ function BoardLayoutContent({
   } = useTaskModals();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeletingBoard, setIsDeletingBoard] = useState(false);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [boardMenuOpenTrigger, setBoardMenuOpenTrigger] = useState(0);
 
   const hasBoards = boards.length > 0;
@@ -85,7 +87,7 @@ function BoardLayoutContent({
       const mod = isMac ? e.metaKey : e.ctrlKey;
       if (mod && e.key === "k") {
         e.preventDefault();
-        setCommandPaletteOpen((open) => !open);
+        setCommandPaletteOpen(!commandPaletteOpen);
         return;
       }
       if (e.key === "n" && !e.metaKey && !e.ctrlKey && !e.altKey) {
@@ -99,7 +101,7 @@ function BoardLayoutContent({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [addTaskModalOpen, searchOpen, editBoardModalOpen, deleteBoardModalOpen, manageLabelsModalOpen, addBoardModalOpen, viewCardId, editCardId, deleteTask, setAddTaskModalOpen]);
+  }, [commandPaletteOpen, addTaskModalOpen, searchOpen, editBoardModalOpen, deleteBoardModalOpen, manageLabelsModalOpen, addBoardModalOpen, viewCardId, editCardId, deleteTask, setAddTaskModalOpen, setCommandPaletteOpen]);
 
   const mainContent = !hasBoards ? (
     <DashboardEmptyState onCreateBoard={() => setAddBoardModalOpen(true)} />
@@ -144,13 +146,16 @@ function BoardLayoutContent({
       },
       ...(selectedBoardId
         ? [
-            {
-              id: "board-options",
-              label: "Board options",
-              onSelect: () => setBoardMenuOpenTrigger((t) => t + 1),
-            },
+            { id: "board-options", label: "Board options", onSelect: () => setBoardMenuOpenTrigger((t) => t + 1) },
+            { id: "add-column", label: "Add new column", onSelect: () => setAddColumnModalOpen(true) },
           ]
         : []),
+      { id: "manage-labels", label: "Manage labels", onSelect: () => setManageLabelsModalOpen(true) },
+      {
+        id: "toggle-sidebar",
+        label: sidebarOpen ? "Hide sidebar" : "Show sidebar",
+        onSelect: () => setSidebarOpen(!sidebarOpen),
+      },
       {
         id: "new-board",
         label: "Create new board",
@@ -159,9 +164,13 @@ function BoardLayoutContent({
     ],
     [
       selectedBoardId,
+      sidebarOpen,
       setAddTaskModalOpen,
       setSearchOpen,
       setAddBoardModalOpen,
+      setAddColumnModalOpen,
+      setManageLabelsModalOpen,
+      setSidebarOpen,
     ]
   );
 

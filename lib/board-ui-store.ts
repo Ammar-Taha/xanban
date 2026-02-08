@@ -21,6 +21,8 @@ type BoardUIState = {
   setManageLabelsModalOpen: (open: boolean) => void;
   searchOpen: boolean;
   setSearchOpen: (open: boolean) => void;
+  commandPaletteOpen: boolean;
+  setCommandPaletteOpen: (open: boolean) => void;
   selectedBoardId: string | null;
   setSelectedBoardId: (id: string | null) => void;
 };
@@ -45,6 +47,8 @@ export const useBoardUIStore = create<BoardUIState>()(
       setManageLabelsModalOpen: (open) => set({ manageLabelsModalOpen: open }),
       searchOpen: false,
       setSearchOpen: (open) => set({ searchOpen: open }),
+      commandPaletteOpen: false,
+      setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
       selectedBoardId: null,
       setSelectedBoardId: (id) => set({ selectedBoardId: id }),
     }),
