@@ -3,13 +3,25 @@
 import { useTaskModals } from "@/components/board/task-modals-context";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
 import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 const COLUMN_DOT_COLORS = [
-  "bg-[#49C4E5]", // light blue
-  "bg-[#635FC7]", // purple
-  "bg-[#67E2AE]", // green
+  "bg-[#49C4E5]",
+  "bg-[#635FC7]",
+  "bg-[#67E2AE]",
 ];
 
 type Column = {
@@ -27,6 +39,64 @@ type Card = {
 
 type SubtaskCount = { total: number; completed: number };
 
+function CardContent({
+  card,
+  subtaskCount,
+  className,
+}: {
+  card: Card;
+  subtaskCount?: SubtaskCount | null;
+  className?: string;
+}) {
+  return (
+    <div className={cn("rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 shadow-sm", className)}>
+      <p className="text-[15px] font-medium leading-[1.26] text-[var(--board-text)]">
+        {card.title}
+      </p>
+      {subtaskCount && subtaskCount.total > 0 && (
+        <p className="mt-2 text-[12px] font-medium text-[var(--board-text-muted)]">
+          {subtaskCount.completed} of {subtaskCount.total} substasks
+        </p>
+      )}
+    </div>
+  );
+}
+
+function DraggableCard({
+  card,
+  subtaskCount,
+  onOpen,
+}: {
+  card: Card;
+  subtaskCount: SubtaskCount | undefined;
+  onOpen: (id: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: card.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "cursor-grab active:cursor-grabbing",
+        isDragging && "opacity-50"
+      )}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          onOpen(card.id);
+        }}
+        className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-xanban-primary)] focus-visible:ring-offset-2 rounded-lg"
+      >
+        <CardContent card={card} subtaskCount={subtaskCount} className="hover:border-[var(--color-xanban-primary)]/50 hover:shadow-md transition-colors" />
+      </button>
+    </div>
+  );
+}
+
 export function BoardColumnsView({
   boardId,
   onAddColumn,
@@ -39,6 +109,7 @@ export function BoardColumnsView({
   const [cardsByColumn, setCardsByColumn] = useState<Record<string, Card[]>>({});
   const [subtasksByCard, setSubtasksByCard] = useState<Record<string, SubtaskCount>>({});
   const [loading, setLoading] = useState(true);
+  const [activeCard, setActiveCard] = useState<Card | null>(null);
 
   const fetchColumnsAndCards = useCallback(async () => {
     if (!boardId) return;
@@ -99,6 +170,70 @@ export function BoardColumnsView({
     fetchColumnsAndCards();
   }, [fetchColumnsAndCards]);
 
+  const getColumnIdForCard = useCallback(
+    (cardId: string): string | null => {
+      for (const [colId, cards] of Object.entries(cardsByColumn)) {
+        if (cards.some((c) => c.id === cardId)) return colId;
+      }
+      return null;
+    },
+    [cardsByColumn]
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const cardId = event.active.id as string;
+    for (const cards of Object.values(cardsByColumn)) {
+      const card = cards.find((c) => c.id === cardId);
+      if (card) {
+        setActiveCard(card);
+        return;
+      }
+    }
+  }, [cardsByColumn]);
+
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      setActiveCard(null);
+      const { active, over } = event;
+      if (!over?.id) return;
+      const cardId = active.id as string;
+      let targetColumnId: string | null = null;
+      if (columns.some((c) => c.id === over.id)) {
+        targetColumnId = over.id as string;
+      } else {
+        targetColumnId = getColumnIdForCard(over.id as string);
+      }
+      if (!targetColumnId) return;
+      const sourceColumnId = getColumnIdForCard(cardId);
+      if (!sourceColumnId || sourceColumnId === targetColumnId) return;
+
+      const targetCards = cardsByColumn[targetColumnId] ?? [];
+      const nextPosition = targetCards.length;
+
+      setCardsByColumn((prev) => {
+        const next = { ...prev };
+        next[sourceColumnId] = (next[sourceColumnId] ?? []).filter((c) => c.id !== cardId);
+        const card = (prev[sourceColumnId] ?? []).find((c) => c.id === cardId);
+        if (!card) return prev;
+        const newCard = { ...card, column_id: targetColumnId, position: nextPosition };
+        next[targetColumnId] = [...(next[targetColumnId] ?? []), newCard];
+        return next;
+      });
+
+      const supabase = createClient();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase client infers never
+      await (supabase.from("cards") as any)
+        .update({ column_id: targetColumnId, position: nextPosition })
+        .eq("id", cardId);
+    },
+    [columns, cardsByColumn, getColumnIdForCard]
+  );
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
@@ -108,57 +243,90 @@ export function BoardColumnsView({
   }
 
   return (
-    <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
-      <div className="flex h-full min-w-min gap-6">
-        {columns.map((col, index) => (
-          <div
-            key={col.id}
-            className="flex w-[280px] shrink-0 flex-col rounded-lg bg-[var(--board-bg)]"
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="flex flex-1 overflow-x-auto overflow-y-hidden p-6">
+        <div className="flex h-full min-w-min gap-6">
+          {columns.map((col, index) => (
+            <ColumnDropZone
+              key={col.id}
+              column={col}
+              columnIndex={index}
+              cards={cardsByColumn[col.id] ?? []}
+              subtasksByCard={subtasksByCard}
+              onCardClick={setViewCardId}
+            />
+          ))}
+          <button
+            type="button"
+            onClick={onAddColumn}
+            className="flex min-h-[calc(100vh-12rem)] w-[280px] shrink-0 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--board-line)] bg-[var(--board-bg)] text-[var(--board-text-muted)] transition-colors hover:border-[var(--color-xanban-primary)] hover:bg-[var(--board-bg)] hover:text-[var(--color-xanban-primary)]"
           >
-            <div className="mb-4 flex items-center gap-2">
-              <span
-                className={cn(
-                  "h-3 w-3 shrink-0 rounded-full",
-                  COLUMN_DOT_COLORS[index % COLUMN_DOT_COLORS.length]
-                )}
-              />
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-[var(--board-text-muted)]">
-                {col.name} ({(cardsByColumn[col.id] ?? []).length})
-              </h3>
-            </div>
-            <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
-              {(cardsByColumn[col.id] ?? []).map((card) => {
-                const st = subtasksByCard[card.id];
-                return (
-                  <button
-                    key={card.id}
-                    type="button"
-                    onClick={() => setViewCardId(card.id)}
-                    className="w-full rounded-lg border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 py-3 text-left shadow-sm transition-colors hover:border-[var(--color-xanban-primary)]/50 hover:shadow-md"
-                  >
-                    <p className="text-[15px] font-medium leading-[1.26] text-[var(--board-text)]">
-                      {card.title}
-                    </p>
-                    {st && st.total > 0 && (
-                      <p className="mt-2 text-[12px] font-medium text-[var(--board-text-muted)]">
-                        {st.completed} of {st.total} substasks
-                      </p>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+            <Plus className="h-8 w-8" />
+            <span className="text-[15px] font-bold leading-[1.26]">New Column</span>
+          </button>
+        </div>
+      </div>
+
+      <DragOverlay>
+        {activeCard ? (
+          <CardContent
+            card={activeCard}
+            subtaskCount={subtasksByCard[activeCard.id]}
+            className="cursor-grabbing shadow-lg opacity-95 w-[260px]"
+          />
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+
+function ColumnDropZone({
+  column,
+  columnIndex,
+  cards,
+  subtasksByCard,
+  onCardClick,
+}: {
+  column: Column;
+  columnIndex: number;
+  cards: Card[];
+  subtasksByCard: Record<string, SubtaskCount>;
+  onCardClick: (id: string) => void;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex w-[280px] shrink-0 flex-col rounded-lg bg-[var(--board-bg)] transition-colors",
+        isOver && "ring-2 ring-[var(--color-xanban-primary)] ring-offset-2 ring-offset-[var(--board-bg)]"
+      )}
+    >
+      <div className="mb-4 flex items-center gap-2">
+        <span
+          className={cn(
+            "h-3 w-3 shrink-0 rounded-full",
+            COLUMN_DOT_COLORS[columnIndex % COLUMN_DOT_COLORS.length]
+          )}
+        />
+        <h3 className="text-[12px] font-bold uppercase tracking-[0.2em] text-[var(--board-text-muted)]">
+          {column.name} ({cards.length})
+        </h3>
+      </div>
+      <div className="flex flex-1 flex-col gap-3 overflow-y-auto min-h-[80px]">
+        {cards.map((card) => (
+          <DraggableCard
+            key={card.id}
+            card={card}
+            subtaskCount={subtasksByCard[card.id]}
+            onOpen={onCardClick}
+          />
         ))}
-        {/* + New Column */}
-        <button
-          type="button"
-          onClick={onAddColumn}
-          className="flex min-h-[calc(100vh-12rem)] w-[280px] shrink-0 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--board-line)] bg-[var(--board-bg)] text-[var(--board-text-muted)] transition-colors hover:border-[var(--color-xanban-primary)] hover:bg-[var(--board-bg)] hover:text-[var(--color-xanban-primary)]"
-        >
-          <Plus className="h-8 w-8" />
-          <span className="text-[15px] font-bold leading-[1.26]">New Column</span>
-        </button>
       </div>
     </div>
   );
