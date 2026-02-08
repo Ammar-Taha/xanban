@@ -31,12 +31,22 @@ export default function DashboardPage() {
   const fetchBoards = useCallback(async () => {
     if (!user?.id) return;
     const supabase = createClient();
-    const { data } = await supabase
+    // Prefer position order (after migration); fallback to created_at if position column doesn't exist yet
+    const { data, error } = await supabase
       .from("boards")
       .select("id, name")
       .eq("user_id", user.id)
       .order("position", { ascending: true })
       .order("created_at", { ascending: true });
+    if (error) {
+      const fallback = await supabase
+        .from("boards")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true });
+      setBoards((fallback.data as BoardSummary[]) ?? []);
+      return;
+    }
     setBoards((data as BoardSummary[]) ?? []);
   }, [user?.id]);
 
