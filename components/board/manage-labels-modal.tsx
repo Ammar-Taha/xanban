@@ -126,33 +126,37 @@ export function ManageLabelsModal({ open, onClose }: ManageLabelsModalProps) {
                 className="flex items-center gap-3 rounded-lg border border-[var(--board-line)] bg-[var(--board-bg)] p-3"
               >
                 {editingId === l.id ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="h-8 flex-1 rounded border border-[var(--board-line)] bg-[var(--board-header-bg)] px-2 text-[13px] focus:border-[#635FC7] focus:outline-none"
-                      placeholder="Label name"
-                    />
-                    <ColumnColorPicker
-                      value={editColor || DEFAULT_LABEL_COLOR}
-                      onChange={(hex) => setEditColor(hex || DEFAULT_LABEL_COLOR)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleUpdate(l.id)}
-                      className="rounded bg-[#635FC7] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[#A8A4FF]"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="rounded border border-[var(--board-line)] px-3 py-1.5 text-[12px] font-medium text-[var(--board-text)]"
-                    >
-                      Cancel
-                    </button>
-                  </>
+                  <div className="flex w-full min-w-0 flex-col gap-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="h-8 min-w-0 flex-1 rounded border border-[var(--board-line)] bg-[var(--board-header-bg)] px-2 text-[13px] focus:border-[#635FC7] focus:outline-none"
+                        placeholder="Label name"
+                      />
+                      <ColumnColorPicker
+                        value={editColor || DEFAULT_LABEL_COLOR}
+                        onChange={(hex) => setEditColor(hex || DEFAULT_LABEL_COLOR)}
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingId(null)}
+                        className="rounded border border-[var(--board-line)] px-3 py-1.5 text-[12px] font-medium text-[var(--board-text)]"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdate(l.id)}
+                        className="rounded bg-[#635FC7] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[#A8A4FF]"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <LabelChip name={l.name} color={l.color} small />
