@@ -50,10 +50,10 @@ function OtpLoginContent() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-xl border border-[#E4EBFA] bg-white p-8 shadow-sm">
+    <div className="w-full max-w-[480px] rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-8 shadow-sm">
       <div className="flex items-center justify-center gap-2">
         <Image src="/icon.svg" alt="Xanban" width={28} height={28} />
-        <span className="text-[18px] font-bold tracking-tight text-[#000112]">
+        <span className="text-[18px] font-bold tracking-tight text-[var(--board-text)]">
           Xanban
         </span>
       </div>
@@ -61,10 +61,10 @@ function OtpLoginContent() {
       {step === "email" && (
         <>
           <div className="mt-6 space-y-1 text-center">
-            <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+            <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
               Sign in with email
             </h1>
-            <p className="text-[13px] font-medium text-[#828FA3]">
+            <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
               We’ll send you a 6-digit code to verify your email.
             </p>
           </div>
@@ -79,7 +79,7 @@ function OtpLoginContent() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+                className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
               >
                 Email
               </label>
@@ -91,7 +91,7 @@ function OtpLoginContent() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={isLoading}
-                className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7] disabled:opacity-60"
+                className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7] disabled:opacity-60"
               />
             </div>
             <button
@@ -105,10 +105,10 @@ function OtpLoginContent() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#E4EBFA]" />
+              <div className="w-full border-t border-[var(--board-line)]" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-2 text-[12px] font-medium uppercase tracking-widest text-[#828FA3]">
+              <span className="bg-[var(--board-header-bg)] px-2 text-[12px] font-medium uppercase tracking-widest text-[var(--board-text-muted)]">
                 or
               </span>
             </div>
@@ -130,17 +130,17 @@ function OtpLoginContent() {
           <button
             type="button"
             onClick={() => setStep("email")}
-            className="mt-4 text-[13px] font-medium text-[#828FA3] hover:text-[#000112]"
+            className="mt-4 text-[13px] font-medium text-[var(--board-text-muted)] hover:text-[var(--board-text)]"
           >
             ← Back
           </button>
           <div className="mt-6 space-y-1 text-center">
-            <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+            <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
               Check your email
             </h1>
-            <p className="text-[13px] font-medium text-[#828FA3]">
+            <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
               We sent a 6-digit code to{" "}
-              <span className="font-semibold text-[#000112]">
+              <span className="font-semibold text-[var(--board-text)]">
                 {email ? maskEmail(email) : "your email"}
               </span>
             </p>
@@ -156,7 +156,7 @@ function OtpLoginContent() {
             <div className="space-y-2">
               <label
                 htmlFor="code"
-                className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+                className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
               >
                 Verification code
               </label>
@@ -172,7 +172,7 @@ function OtpLoginContent() {
                 }
                 required
                 disabled={isLoading}
-                className="h-12 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-center text-[18px] font-bold tracking-[0.5em] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7] disabled:opacity-60"
+                className="h-12 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-center text-[18px] font-bold tracking-[0.5em] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7] disabled:opacity-60"
               />
             </div>
             <button
@@ -184,7 +184,7 @@ function OtpLoginContent() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-[12px] font-medium text-[#828FA3]">
+          <p className="mt-4 text-center text-[12px] font-medium text-[var(--board-text-muted)]">
             Didn’t get the code?{" "}
             <button
               type="button"
@@ -197,7 +197,7 @@ function OtpLoginContent() {
         </>
       )}
 
-      <p className="mt-8 border-t border-[#E4EBFA] pt-6 text-center text-[13px] font-medium text-[#828FA3]">
+      <p className="mt-8 border-t border-[var(--board-line)] pt-6 text-center text-[13px] font-medium text-[var(--board-text-muted)]">
         No account?{" "}
         <Link
           href="/signup"
@@ -214,7 +214,7 @@ export default function OtpLoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex w-full max-w-[480px] items-center justify-center rounded-xl border border-[#E4EBFA] bg-white p-12 shadow-sm">
+        <div className="flex w-full max-w-[480px] items-center justify-center rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-12 shadow-sm">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#635FC7] border-t-transparent" />
         </div>
       }

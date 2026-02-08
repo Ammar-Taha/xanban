@@ -31,19 +31,19 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-xl border border-[#E4EBFA] bg-white p-8 shadow-sm">
+    <div className="w-full max-w-[480px] rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-8 shadow-sm">
       <div className="flex items-center justify-center gap-2">
         <Image src="/icon.svg" alt="Xanban" width={28} height={28} />
-        <span className="text-[18px] font-bold tracking-tight text-[#000112]">
+        <span className="text-[18px] font-bold tracking-tight text-[var(--board-text)]">
           Xanban
         </span>
       </div>
 
       <div className="mt-6 space-y-1 text-center">
-        <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+        <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
           Reset your password
         </h1>
-        <p className="text-[13px] font-medium text-[#828FA3]">
+        <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
           Choose a new password for your account.
         </p>
       </div>
@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
         <div className="space-y-2">
           <label
             htmlFor="new-password"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             New password
           </label>
@@ -69,18 +69,18 @@ export default function ResetPasswordPage() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               required
-              className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 pr-10 text-[13px] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 pr-10 text-[13px] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
             />
             <button
               type="button"
               onClick={() => setShowNew(!showNew)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#828FA3] hover:text-[#000112]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--board-text-muted)] hover:text-[var(--board-text)]"
               aria-label={showNew ? "Hide password" : "Show password"}
             >
               {showNew ? "🙈" : "👁"}
             </button>
           </div>
-          <p className="text-[12px] font-medium text-[#828FA3]">
+          <p className="text-[12px] font-medium text-[var(--board-text-muted)]">
             At least 8 characters
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
         <div className="space-y-2">
           <label
             htmlFor="confirm-password"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Confirm new password
           </label>
@@ -99,12 +99,12 @@ export default function ResetPasswordPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 pr-10 text-[13px] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 pr-10 text-[13px] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#828FA3] hover:text-[#000112]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--board-text-muted)] hover:text-[var(--board-text)]"
               aria-label={showConfirm ? "Hide password" : "Show password"}
             >
               {showConfirm ? "🙈" : "👁"}

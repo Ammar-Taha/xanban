@@ -46,25 +46,25 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-xl border border-[#E4EBFA] bg-white p-8 shadow-sm">
+    <div className="w-full max-w-[480px] rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-8 shadow-sm">
       <div className="flex items-center justify-center gap-2">
         <Image src="/icon.svg" alt="Xanban" width={28} height={28} />
-        <span className="text-[18px] font-bold tracking-tight text-[#000112]">
+        <span className="text-[18px] font-bold tracking-tight text-[var(--board-text)]">
           Xanban
         </span>
       </div>
 
       <div className="mt-6 space-y-1 text-center">
-        <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+        <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
           Create your account
         </h1>
-        <p className="text-[13px] font-medium text-[#828FA3]">
+        <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
           Sign up to start managing tasks with boards and cards.
         </p>
       </div>
 
       {success && (
-        <div className="mt-4 rounded-lg border border-green-500/50 bg-green-50 px-4 py-3 text-[13px] font-medium text-green-800">
+        <div className="mt-4 rounded-lg border border-[var(--board-line)] bg-[var(--board-bg)] px-4 py-3 text-[13px] font-medium text-[var(--board-text)]">
           Check your email to confirm your account.
         </div>
       )}
@@ -78,7 +78,7 @@ export default function SignupPage() {
         <div className="space-y-2">
           <label
             htmlFor="displayName"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Display name
           </label>
@@ -88,14 +88,14 @@ export default function SignupPage() {
             placeholder="How we'll show you in the app"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+            className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
           />
         </div>
 
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Email
           </label>
@@ -106,14 +106,14 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+            className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
           />
         </div>
 
         <div className="space-y-2">
           <label
             htmlFor="password"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Password
           </label>
@@ -124,18 +124,18 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 pr-10 text-[13px] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 pr-10 text-[13px] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#828FA3] hover:text-[#000112]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--board-text-muted)] hover:text-[var(--board-text)]"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? "🙈" : "👁"}
             </button>
           </div>
-          <p className="text-[12px] font-medium text-[#828FA3]">
+          <p className="text-[12px] font-medium text-[var(--board-text-muted)]">
             At least 8 characters
           </p>
         </div>
@@ -151,10 +151,10 @@ export default function SignupPage() {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#E4EBFA]" />
+          <div className="w-full border-t border-[var(--board-line)]" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-2 text-[12px] font-medium uppercase tracking-widest text-[#828FA3]">
+          <span className="bg-[var(--board-header-bg)] px-2 text-[12px] font-medium uppercase tracking-widest text-[var(--board-text-muted)]">
             or
           </span>
         </div>
@@ -164,7 +164,7 @@ export default function SignupPage() {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={success}
-        className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[#E4EBFA] bg-white text-[13px] font-bold text-[#000112] transition-colors hover:bg-[#F4F7FD] disabled:opacity-60"
+        className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[var(--board-line)] bg-[var(--board-header-bg)] text-[13px] font-bold text-[var(--board-text)] transition-colors hover:bg-[#F4F7FD] disabled:opacity-60"
       >
         <svg
           width="18"
@@ -193,7 +193,7 @@ export default function SignupPage() {
         Continue with Google
       </button>
 
-      <p className="mt-6 border-t border-[#E4EBFA] pt-6 text-center text-[13px] font-medium text-[#828FA3]">
+      <p className="mt-6 border-t border-[var(--board-line)] pt-6 text-center text-[13px] font-medium text-[var(--board-text-muted)]">
         Already have an account?{" "}
         <Link
           href="/login"

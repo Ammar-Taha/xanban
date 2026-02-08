@@ -24,25 +24,25 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-xl border border-[#E4EBFA] bg-white p-8 shadow-sm">
+    <div className="w-full max-w-[480px] rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-8 shadow-sm">
       <div className="flex items-center justify-center gap-2">
         <Image src="/icon.svg" alt="Xanban" width={28} height={28} />
-        <span className="text-[18px] font-bold tracking-tight text-[#000112]">
+        <span className="text-[18px] font-bold tracking-tight text-[var(--board-text)]">
           Xanban
         </span>
       </div>
 
       <div className="mt-6 space-y-1 text-center">
-        <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+        <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
           Forgot your password?
         </h1>
-        <p className="text-[13px] font-medium text-[#828FA3]">
+        <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
           Enter your email and we’ll send you a link to reset it.
         </p>
       </div>
 
       {success && (
-        <div className="mt-4 rounded-lg border border-green-500/50 bg-green-50 px-4 py-3 text-[13px] font-medium text-green-800">
+        <div className="mt-4 rounded-lg border border-[var(--board-line)] bg-[var(--board-bg)] px-4 py-3 text-[13px] font-medium text-[var(--board-text)]">
           Check your email for the reset link.
         </div>
       )}
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Email
           </label>
@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+            className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
           />
         </div>
 

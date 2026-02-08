@@ -35,21 +35,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-xl border border-[#E4EBFA] bg-white p-8 shadow-sm">
+    <div className="w-full max-w-[480px] rounded-xl border border-[var(--board-line)] bg-[var(--board-header-bg)] p-8 shadow-sm">
       {/* Logo */}
       <div className="flex items-center justify-center gap-2">
         <Image src="/icon.svg" alt="Xanban" width={28} height={28} />
-        <span className="text-[18px] font-bold tracking-tight text-[#000112]">
+        <span className="text-[18px] font-bold tracking-tight text-[var(--board-text)]">
           Xanban
         </span>
       </div>
 
       {/* Header */}
       <div className="mt-6 space-y-1 text-center">
-        <h1 className="text-[24px] font-bold leading-[1.27] text-[#000112]">
+        <h1 className="text-[24px] font-bold leading-[1.27] text-[var(--board-text)]">
           Welcome back
         </h1>
-        <p className="text-[13px] font-medium text-[#828FA3]">
+        <p className="text-[13px] font-medium text-[var(--board-text-muted)]">
           Log in to continue to your boards
         </p>
       </div>
@@ -64,7 +64,7 @@ export default function LoginPage() {
         <div className="space-y-2">
           <label
             htmlFor="email"
-            className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+            className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
           >
             Email
           </label>
@@ -75,7 +75,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 text-[13px] text-[#000112] placeholder:text-[#828FA3] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+            className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 text-[13px] text-[var(--board-text)] placeholder:text-[var(--board-text-muted)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
           />
         </div>
 
@@ -83,7 +83,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-between">
             <label
               htmlFor="password"
-              className="text-[12px] font-bold uppercase tracking-widest text-[#828FA3]"
+              className="text-[12px] font-bold uppercase tracking-widest text-[var(--board-text-muted)]"
             >
               Password
             </label>
@@ -101,12 +101,12 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="h-11 w-full rounded-md border border-[#E4EBFA] bg-white px-4 pr-10 text-[13px] text-[#000112] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
+              className="h-11 w-full rounded-md border border-[var(--board-line)] bg-[var(--board-header-bg)] px-4 pr-10 text-[13px] text-[var(--board-text)] focus:border-[#635FC7] focus:outline-none focus:ring-1 focus:ring-[#635FC7]"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#828FA3] hover:text-[#000112]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--board-text-muted)] hover:text-[var(--board-text)]"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? "🙈" : "👁"}
@@ -125,10 +125,10 @@ export default function LoginPage() {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#E4EBFA]" />
+          <div className="w-full border-t border-[var(--board-line)]" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white px-2 text-[12px] font-medium uppercase tracking-widest text-[#828FA3]">
+          <span className="bg-[var(--board-header-bg)] px-2 text-[12px] font-medium uppercase tracking-widest text-[var(--board-text-muted)]">
             or continue with
           </span>
         </div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[#E4EBFA] bg-white text-[13px] font-bold text-[#000112] transition-colors hover:bg-[#F4F7FD]"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[var(--board-line)] bg-[var(--board-header-bg)] text-[13px] font-bold text-[var(--board-text)] transition-colors hover:bg-[#F4F7FD]"
         >
           <svg
             width="18"
@@ -168,13 +168,13 @@ export default function LoginPage() {
         </button>
         <Link
           href="/otp-login"
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[#E4EBFA] bg-[#635FC7]/10 text-[13px] font-bold text-[#635FC7] transition-colors hover:bg-[#635FC7]/20"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[var(--board-line)] bg-[#635FC7]/10 text-[13px] font-bold text-[#635FC7] transition-colors hover:bg-[#635FC7]/20"
         >
           Sign in with email code
         </Link>
       </div>
 
-      <p className="mt-6 border-t border-[#E4EBFA] pt-6 text-center text-[13px] font-medium text-[#828FA3]">
+      <p className="mt-6 border-t border-[var(--board-line)] pt-6 text-center text-[13px] font-medium text-[var(--board-text-muted)]">
         No account yet?{" "}
         <Link
           href="/signup"
