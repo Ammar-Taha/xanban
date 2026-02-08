@@ -15,6 +15,7 @@ import { DeleteTaskModal } from "./delete-task-modal";
 import { EditBoardModal } from "./edit-board-modal";
 import { EditTaskModal } from "./edit-task-modal";
 import { ManageLabelsModal } from "./manage-labels-modal";
+import { SearchTasksModal } from "./search-tasks-modal";
 import { Sidebar } from "./sidebar";
 import { ShowSidebarButton } from "./show-sidebar-button";
 import { TaskModalsProvider, useTaskModals } from "./task-modals-context";
@@ -59,6 +60,8 @@ function BoardLayoutContent({
     setDeleteBoardModalOpen,
     manageLabelsModalOpen,
     setManageLabelsModalOpen,
+    searchOpen,
+    setSearchOpen,
   } = useBoardUIStore();
   const {
     viewCardId,
@@ -187,6 +190,15 @@ function BoardLayoutContent({
       <ManageLabelsModal
         open={manageLabelsModalOpen}
         onClose={() => setManageLabelsModalOpen(false)}
+      />
+
+      <SearchTasksModal
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        boards={boards}
+        selectedBoardId={selectedBoardId}
+        onSelectBoard={(id) => onSelectBoard?.(id)}
+        onOpenTask={setViewCardId}
       />
 
       {/* Main: header + content — starts after sidebar on desktop */}

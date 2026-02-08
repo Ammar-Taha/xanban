@@ -2,7 +2,7 @@
 
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LayoutDashboard, MoreVertical, Plus } from "lucide-react";
+import { ChevronDown, LayoutDashboard, MoreVertical, Plus, Search } from "lucide-react";
 import { useState } from "react";
 
 const PLACEHOLDER_BOARD_NAME = "Untitled board";
@@ -27,7 +27,7 @@ export function BoardHeader({
   /** When false (e.g. no board selected after delete), the three-dots Edit/Delete menu is hidden. */
   showBoardMenu?: boolean;
 }) {
-  const { sidebarOpen, setSidebarOpen } = useBoardUIStore();
+  const { sidebarOpen, setSidebarOpen, setSearchOpen } = useBoardUIStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const displayName = boardName?.trim() || PLACEHOLDER_BOARD_NAME;
   const isPlaceholder = !boardName?.trim();
@@ -69,6 +69,14 @@ export function BoardHeader({
       </div>
 
       <div className="flex shrink-0 items-center gap-2 md:gap-4">
+        <button
+          type="button"
+          onClick={() => setSearchOpen(true)}
+          className="flex h-10 w-10 items-center justify-center rounded text-[var(--board-text-muted)] hover:bg-[var(--board-bg)] hover:text-[var(--board-text)]"
+          aria-label="Search tasks"
+        >
+          <Search className="h-5 w-5" />
+        </button>
         <button
           type="button"
           onClick={onAddTask}
