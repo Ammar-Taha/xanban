@@ -42,8 +42,8 @@ export function LabelPicker({
   }, [user?.id]);
 
   useEffect(() => {
-    if (open && user?.id) fetchLabels();
-  }, [open, user?.id, fetchLabels]);
+    if (user?.id) fetchLabels();
+  }, [user?.id, fetchLabels]);
 
   const selectedLabels = labels.filter((l) => selectedIds.includes(l.id));
   const toggleLabel = useCallback(
