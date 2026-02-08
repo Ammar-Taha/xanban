@@ -4,6 +4,7 @@ import type { BoardSummary } from "@/lib/board-ui-store";
 import { useBoardUIStore } from "@/lib/board-ui-store";
 import { cn } from "@/lib/utils";
 import { AddNewBoardModal } from "./add-new-board-modal";
+import { AddNewTaskModal } from "./add-new-task-modal";
 import { BoardHeader } from "./board-header";
 import { DashboardEmptyState } from "./dashboard-empty-state";
 import { Sidebar } from "./sidebar";
@@ -16,6 +17,7 @@ export function BoardLayout({
   selectedBoardName,
   onBoardCreated,
   onSelectBoard,
+  onTaskCreated,
 }: {
   children?: React.ReactNode;
   boards?: BoardSummary[];
@@ -23,9 +25,15 @@ export function BoardLayout({
   selectedBoardName?: string | null;
   onBoardCreated?: (boardId: string) => void;
   onSelectBoard?: (id: string) => void;
+  onTaskCreated?: () => void;
 }) {
-  const { sidebarOpen, addBoardModalOpen, setAddBoardModalOpen } =
-    useBoardUIStore();
+  const {
+    sidebarOpen,
+    addBoardModalOpen,
+    setAddBoardModalOpen,
+    addTaskModalOpen,
+    setAddTaskModalOpen,
+  } = useBoardUIStore();
 
   const hasBoards = boards.length > 0;
 
@@ -50,6 +58,13 @@ export function BoardLayout({
         onBoardCreated={onBoardCreated}
       />
 
+      <AddNewTaskModal
+        open={addTaskModalOpen}
+        onClose={() => setAddTaskModalOpen(false)}
+        boardId={selectedBoardId}
+        onTaskCreated={onTaskCreated}
+      />
+
       {/* Main: header + content — starts after sidebar on desktop */}
       <main
         className={cn(
@@ -57,7 +72,11 @@ export function BoardLayout({
           sidebarOpen ? "md:ml-[300px]" : "md:ml-[72px]"
         )}
       >
-        <BoardHeader boardName={selectedBoardName} />
+        <BoardHeader
+          boardName={selectedBoardName}
+          onAddTask={() => setAddTaskModalOpen(true)}
+          disableAddTask={!selectedBoardId}
+        />
         {mainContent}
       </main>
 

@@ -9,6 +9,8 @@ type BoardUIState = {
   toggleSidebar: () => void;
   addBoardModalOpen: boolean;
   setAddBoardModalOpen: (open: boolean) => void;
+  addTaskModalOpen: boolean;
+  setAddTaskModalOpen: (open: boolean) => void;
   selectedBoardId: string | null;
   setSelectedBoardId: (id: string | null) => void;
 };
@@ -21,6 +23,8 @@ export const useBoardUIStore = create<BoardUIState>()(
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       addBoardModalOpen: false,
       setAddBoardModalOpen: (open) => set({ addBoardModalOpen: open }),
+      addTaskModalOpen: false,
+      setAddTaskModalOpen: (open) => set({ addTaskModalOpen: open }),
       selectedBoardId: null,
       setSelectedBoardId: (id) => set({ selectedBoardId: id }),
     }),

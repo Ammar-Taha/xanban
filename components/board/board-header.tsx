@@ -11,10 +11,12 @@ export function BoardHeader({
   boardName,
   onAddTask,
   onOpenSettings,
+  disableAddTask,
 }: {
   boardName?: string | null;
   onAddTask?: () => void;
   onOpenSettings?: () => void;
+  disableAddTask?: boolean;
 }) {
   const { sidebarOpen, setSidebarOpen } = useBoardUIStore();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,6 +63,7 @@ export function BoardHeader({
         <button
           type="button"
           onClick={onAddTask}
+          disabled={disableAddTask}
           className="flex items-center gap-2 rounded-full bg-[var(--color-xanban-primary)] px-4 py-3 text-[15px] font-bold leading-[1.26] text-white transition-colors hover:bg-[var(--color-xanban-primary-hover)] disabled:opacity-25"
         >
           <Plus className="h-4 w-4" />

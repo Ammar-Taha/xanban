@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { selectedBoardId, setSelectedBoardId } = useBoardUIStore();
   const [boards, setBoards] = useState<BoardSummary[]>([]);
+  const [boardRefreshKey, setBoardRefreshKey] = useState(0);
 
   useEffect(() => {
     if (isLoading || !user) return;
@@ -63,6 +64,10 @@ export default function DashboardPage() {
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
   const selectedBoardName = selectedBoard?.name ?? null;
 
+  const handleTaskCreated = useCallback(() => {
+    setBoardRefreshKey((k) => k + 1);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--board-bg)]">
@@ -82,9 +87,10 @@ export default function DashboardPage() {
       selectedBoardName={selectedBoardName}
       onBoardCreated={handleBoardCreated}
       onSelectBoard={setSelectedBoardId}
+      onTaskCreated={handleTaskCreated}
     >
       {selectedBoardId ? (
-        <BoardColumnsView boardId={selectedBoardId} />
+        <BoardColumnsView key={boardRefreshKey} boardId={selectedBoardId} />
       ) : undefined}
     </BoardLayout>
   );
